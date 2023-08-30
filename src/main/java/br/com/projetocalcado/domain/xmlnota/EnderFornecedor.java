@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.XmlNota;
+package br.com.projetocalcado.domain.xmlnota;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import jakarta.persistence.Embeddable;
@@ -13,7 +13,7 @@ public class EnderFornecedor {
     @XStreamAlias("xLgr")
     private String logradouro;
     @XStreamAlias("nro")
-    private Long numero;
+    private String numero;
     @XStreamAlias("xBairro")
     private String bairro;
     @XStreamAlias("xMun")

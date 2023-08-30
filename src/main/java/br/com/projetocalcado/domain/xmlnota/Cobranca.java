@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.XmlNota;
+package br.com.projetocalcado.domain.xmlnota;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -8,10 +8,10 @@ import java.util.List;
 @Getter
 @XStreamAlias("cobr")
 public class Cobranca {
+    // @XStreamAlias("fat")
+    // private Fatura fatura;
 
-
-    @XStreamAlias("fat")
-    private Fatura fatura;
     @XStreamImplicit
     private List<Duplicata> duplicatas;
+
 }

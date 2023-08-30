@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.XmlNota;
+package br.com.projetocalcado.domain.xmlnota;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Getter;

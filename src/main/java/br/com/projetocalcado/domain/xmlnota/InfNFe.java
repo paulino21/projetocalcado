@@ -1,5 +1,6 @@
-package br.com.projetocalcado.domain.XmlNota;
+package br.com.projetocalcado.domain.xmlnota;
 
+import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import lombok.Getter;
@@ -14,7 +15,9 @@ public class InfNFe {
    @XStreamAlias("emit")
    private Fornecedor fornecedor;
    @XStreamImplicit
-   private List<DetItens> detList;
+   private List <DetItens> detList;
    @XStreamAlias("cobr")
    private Cobranca cobranca;
+
+
 }
