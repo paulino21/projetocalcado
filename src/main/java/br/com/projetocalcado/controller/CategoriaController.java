@@ -4,6 +4,7 @@ import br.com.projetocalcado.domain.categoria.Categoria;
 import br.com.projetocalcado.domain.categoria.CategoriaRepository;
 import br.com.projetocalcado.domain.categoria.DadosCategoria;
 import br.com.projetocalcado.domain.categoria.DadosDetalheCategoria;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ public class CategoriaController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastraCategotia(@RequestBody DadosCategoria dadosCategoria, UriComponentsBuilder uriBuilder){
+    public ResponseEntity cadastraCategotia(@RequestBody @Valid DadosCategoria dadosCategoria, UriComponentsBuilder uriBuilder){
         var categoria = new Categoria(dadosCategoria);
         repository.save(categoria);
         var uri = uriBuilder.path("categoria/{id}").buildAndExpand(categoria.getId()).toUri();

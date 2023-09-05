@@ -4,6 +4,7 @@ import br.com.projetocalcado.domain.fornecedor.DadosFornecedor;
 import br.com.projetocalcado.domain.fornecedor.DadosDetalheFornecedor;
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,7 @@ public class FornecedorController {
     FornecedorRepository fornecedorRepository;
     @PostMapping
     @Transactional
-    public ResponseEntity cadastraFornecedor(@RequestBody DadosFornecedor dadosFornecedor , UriComponentsBuilder uriBuilder){
+    public ResponseEntity cadastraFornecedor(@RequestBody @Valid DadosFornecedor dadosFornecedor , UriComponentsBuilder uriBuilder){
         var fornecedor = new Fornecedor(dadosFornecedor);
         fornecedorRepository.save(fornecedor);
         var uri = uriBuilder.path("/fornecedor/{id}").buildAndExpand(fornecedor.getId()).toUri();

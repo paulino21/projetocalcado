@@ -20,10 +20,8 @@ public class ItensNota {
     private Long id;
     private BigDecimal precoCusto;
     private int quantidade;
-
     @ManyToOne
     private NotaFiscal notaFiscal;
-
     @ManyToOne
     private Produto produto;
 

@@ -38,8 +38,8 @@ public class NotaService {
 
         for (Duplicata dup : dadosNota.duplicatas()) {
             duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
+            nota.adicionaPagamento(duplicata);
         }
-        nota.adicionaPagamento(duplicata);
         nota.adiconarItem(itemPedido);
         notaFiscalRepository.save(nota);
         return new DadosDetalheNotaFiscal(nota);

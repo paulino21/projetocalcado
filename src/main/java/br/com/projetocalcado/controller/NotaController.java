@@ -3,6 +3,7 @@ package br.com.projetocalcado.controller;
 import br.com.projetocalcado.domain.nota.DadosNotaFiscal;
 import br.com.projetocalcado.domain.nota.NotaFiscalRepository;
 import br.com.projetocalcado.domain.nota.NotaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class NotaController {
     }
     @PostMapping
     @Transactional
-    public ResponseEntity cadastraNota(@RequestBody DadosNotaFiscal dadosNotaFiscal , UriComponentsBuilder uriBuilder){
+    public ResponseEntity cadastraNota(@RequestBody @Valid DadosNotaFiscal dadosNotaFiscal , UriComponentsBuilder uriBuilder){
             var nota = notaService.cadastraNota(dadosNotaFiscal);
             var uri = uriBuilder.path("/nota/{id}").buildAndExpand(nota.id()).toUri();
         return ResponseEntity.created(uri).body(nota);

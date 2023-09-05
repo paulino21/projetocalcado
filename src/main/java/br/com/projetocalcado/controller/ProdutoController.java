@@ -4,6 +4,7 @@ import br.com.projetocalcado.domain.produto.DadosCadastroProduto;
 import br.com.projetocalcado.domain.produto.DadosDetalheDoproduto;
 import br.com.projetocalcado.domain.produto.Produto;
 import br.com.projetocalcado.domain.produto.ProdutoRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ public class ProdutoController {
     private ProdutoRepository repository;
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrar(@RequestBody DadosCadastroProduto dadosProduto, UriComponentsBuilder uriBuilder){
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroProduto dadosProduto, UriComponentsBuilder uriBuilder){
 
         var produto = new Produto(dadosProduto);
         repository.save(produto);
