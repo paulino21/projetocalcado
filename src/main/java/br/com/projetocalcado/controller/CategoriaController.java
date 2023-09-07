@@ -46,7 +46,7 @@ public class CategoriaController {
     }
     @PutMapping
     @Transactional
-    public ResponseEntity AtualizaCategoria(@RequestBody DadosDetalheCategoria dadosCategoria){
+    public ResponseEntity AtualizaCategoria(@RequestBody @Valid DadosDetalheCategoria dadosCategoria){
         var categoria = repository.getReferenceById(dadosCategoria.id());
         categoria.atualizaCategoria(dadosCategoria);
         return ResponseEntity.ok(new DadosDetalheCategoria(categoria));

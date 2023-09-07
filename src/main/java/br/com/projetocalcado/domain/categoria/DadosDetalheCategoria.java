@@ -1,6 +1,13 @@
 package br.com.projetocalcado.domain.categoria;
 
-public record DadosDetalheCategoria(Long id, String nome) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record DadosDetalheCategoria(
+        @NotNull
+        Long id,
+        @NotBlank
+        String nome) {
 
 
     public DadosDetalheCategoria(Categoria categoria){

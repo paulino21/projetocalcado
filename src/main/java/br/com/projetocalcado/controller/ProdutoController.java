@@ -46,7 +46,7 @@ public class ProdutoController {
     }
     @PutMapping
     @Transactional
-    public ResponseEntity atualizaProduto(@RequestBody DadosDetalheDoproduto dadosProduto){
+    public ResponseEntity atualizaProduto(@RequestBody @Valid DadosDetalheDoproduto dadosProduto){
         var produto = repository.getReferenceById(dadosProduto.id());
         produto.atualizaProduto(dadosProduto);
         return ResponseEntity.ok(new DadosDetalheDoproduto(produto));

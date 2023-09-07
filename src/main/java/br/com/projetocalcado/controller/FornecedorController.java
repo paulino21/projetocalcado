@@ -26,7 +26,7 @@ public class FornecedorController {
     }
     @PutMapping
     @Transactional
-    public ResponseEntity atualizaFornecedor(@RequestBody DadosDetalheFornecedor dadosFornecedor){
+    public ResponseEntity atualizaFornecedor(@RequestBody @Valid DadosDetalheFornecedor dadosFornecedor){
         var fornecedor = fornecedorRepository.getReferenceById(dadosFornecedor.id());
         System.out.println(dadosFornecedor.enderFornecedor().getMunicipio());
         fornecedor.atualizaFornecedor(dadosFornecedor);

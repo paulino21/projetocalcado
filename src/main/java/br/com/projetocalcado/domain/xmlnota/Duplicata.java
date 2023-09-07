@@ -1,20 +1,24 @@
 package br.com.projetocalcado.domain.xmlnota;
 
 import br.com.projetocalcado.domain.nota.NotaFiscal;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @XStreamAlias("dup")
 @Entity
 public class Duplicata {
@@ -31,7 +35,7 @@ public class Duplicata {
     private Long numParcelaDup;
     @XStreamAlias("dVenc")
     @NotNull
-    @DateTimeFormat(pattern = "yyyy/MM/dd")
+    @JsonFormat(pattern="dd/MM/yyyy")
     private LocalDate dataVenc;
     @XStreamAlias("vDup")
     @NotNull

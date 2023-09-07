@@ -1,18 +1,19 @@
 package br.com.projetocalcado.domain.nota;
 
 import br.com.projetocalcado.domain.xmlnota.Duplicata;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 
 public record DadosNotaFiscal(
         @NotNull
         Long numeroNF,
         @NotNull
-        @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
         LocalDateTime dataEmissao,
         @NotNull
         Long idFornecedor,
@@ -23,6 +24,7 @@ public record DadosNotaFiscal(
         @Valid
         @NotNull
         List<Duplicata> duplicatas
+
 ) {
 
 }
