@@ -53,7 +53,7 @@ public class ProdutoController {
     }
     @GetMapping("/busca/{nome}")
     public ResponseEntity buscaPorNomeProduto(@PathVariable String nome){
-        List<Produto> produtos = repository.findByNomeProdContainingIgnoreCase(nome);
+        List<Produto> produtos = repository.findByNomeProdStartingWithIgnoreCase(nome);
         return ResponseEntity.ok(produtos);
     }
 }
