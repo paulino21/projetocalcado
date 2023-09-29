@@ -28,7 +28,6 @@ public record DadosDetalheNotaFiscal(
         @JsonFormat(pattern =" dd/MM/yyyy")
         @NotNull
         LocalDate dataLacamento,
-        @JsonIgnore
         @NotNull
         @Valid
         Fornecedor fornecedor,

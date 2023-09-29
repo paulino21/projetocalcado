@@ -32,10 +32,10 @@ public class NotaFiscal implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fornecedor_id")
     private Fornecedor fornecedor;
-    @OneToMany(mappedBy = "notaFiscal" , cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "notaFiscal" , cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     private List<ItensNota> itens = new ArrayList<>();
 
-    @OneToMany(mappedBy = "notaFiscal" ,  cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "notaFiscal" ,  cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     private List<Duplicata> duplicatas = new ArrayList<>();
     public NotaFiscal(Long numeroNF, LocalDateTime dataEmissao, Fornecedor fornecedor) {
         this.numeroNF = numeroNF;
