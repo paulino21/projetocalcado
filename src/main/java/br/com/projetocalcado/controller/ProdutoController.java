@@ -1,9 +1,6 @@
 package br.com.projetocalcado.controller;
 
-import br.com.projetocalcado.domain.produto.DadosCadastroProduto;
-import br.com.projetocalcado.domain.produto.DadosDetalheDoproduto;
-import br.com.projetocalcado.domain.produto.Produto;
-import br.com.projetocalcado.domain.produto.ProdutoRepository;
+import br.com.projetocalcado.domain.produto.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +15,8 @@ public class ProdutoController {
 
     @Autowired
     private ProdutoRepository repository;
+    @Autowired
+    private ProdutoService produtoService;
     @PostMapping
     @Transactional
     public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroProduto dadosProduto, UriComponentsBuilder uriBuilder){
@@ -35,12 +34,12 @@ public class ProdutoController {
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity deletaProduto(@PathVariable Long id){
-        var produto = repository.getReferenceById(id);
-        repository.delete(produto);
+        produtoService.deletaProduto(id);
         return ResponseEntity.noContent().build();
     }
     @GetMapping("/{id}")
     public ResponseEntity detalheProduto(@PathVariable Long id){
+
         var produto = repository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalheDoproduto(produto));
     }

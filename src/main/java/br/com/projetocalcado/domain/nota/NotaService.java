@@ -62,8 +62,6 @@ public class NotaService {
 
     public DadosDetalheNotaFiscal salvaNotaXml(InfNFe infXml) {
 
-
-
         if (!fornecedorRepository.existsByCnpj(infXml.getFornecedor().getCnpj())) {
             fornecedor = fornecedorRepository.save(infXml.getFornecedor());
         }
