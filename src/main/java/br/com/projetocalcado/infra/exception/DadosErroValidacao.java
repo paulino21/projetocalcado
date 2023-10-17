@@ -1,4 +1,4 @@
-package br.com.projetocalcado.infra;
+package br.com.projetocalcado.infra.exception;
 
 import org.springframework.validation.FieldError;
 
