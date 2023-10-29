@@ -1,16 +1,17 @@
 package br.com.projetocalcado.controller;
 
-import br.com.projetocalcado.domain.fornecedor.DadosFornecedor;
 import br.com.projetocalcado.domain.fornecedor.DadosDetalheFornecedor;
+import br.com.projetocalcado.domain.fornecedor.DadosFornecedor;
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
+@SecurityRequirement(name = "bearer-key")
 @RequestMapping("/fornecedor")
 @RestController
 public class FornecedorController {

@@ -1,14 +1,18 @@
 package br.com.projetocalcado.controller;
 
 import br.com.projetocalcado.domain.produto.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
-
+@SecurityRequirement(name = "bearer-key")
 @RestController
 @RequestMapping("/produto")
 public class ProdutoController {
@@ -27,10 +31,12 @@ public class ProdutoController {
         return ResponseEntity.created(uri).body(new DadosDetalheDoproduto(produto));
      }
     @GetMapping
-    public ResponseEntity listaProdutos(){
-        List<Produto> produtos =  repository.findAll();
-        return ResponseEntity.ok(produtos);
+    public ResponseEntity<Page<DadosListaProduto>> listaProdutos(@PageableDefault(size = 10 , sort = {"nomeProd"}) Pageable pageable){
+         var page = repository.findAll(pageable).map(DadosListaProduto::new);
+         return ResponseEntity.ok(page);
     }
+
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity deletaProduto(@PathVariable Long id){

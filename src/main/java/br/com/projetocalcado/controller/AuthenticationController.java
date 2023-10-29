@@ -6,6 +6,7 @@ import br.com.projetocalcado.domain.Usuario.User;
 import br.com.projetocalcado.domain.Usuario.UserRepository;
 import br.com.projetocalcado.infra.security.DadosToken;
 import br.com.projetocalcado.infra.security.TokenService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(new DadosToken(token));
     }
     @PostMapping("/registro")
+    @SecurityRequirement(name = "bearer-key")
     public ResponseEntity cadastraLogin(@RequestBody  @Valid DadosCadastraLogin dados){
 
         if(userRepository.findByLogin(dados.login() )!= null) return ResponseEntity.badRequest().build();

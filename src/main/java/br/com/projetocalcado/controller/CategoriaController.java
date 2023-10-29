@@ -4,6 +4,7 @@ import br.com.projetocalcado.domain.categoria.Categoria;
 import br.com.projetocalcado.domain.categoria.CategoriaRepository;
 import br.com.projetocalcado.domain.categoria.DadosCategoria;
 import br.com.projetocalcado.domain.categoria.DadosDetalheCategoria;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
-
+@SecurityRequirement(name = "bearer-key")
 @RequestMapping("/categoria")
 @RestController
 public class CategoriaController {
