@@ -4,8 +4,10 @@ import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+@Component
 @Getter
 @XStreamAlias("InfNFe")
 public class InfNFe {

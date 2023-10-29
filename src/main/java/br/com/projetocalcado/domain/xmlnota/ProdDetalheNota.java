@@ -3,8 +3,10 @@ package br.com.projetocalcado.domain.xmlnota;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+@Component
 @Setter
 @Getter
 @XStreamAlias("prod")
