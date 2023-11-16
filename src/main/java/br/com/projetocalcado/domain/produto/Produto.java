@@ -5,11 +5,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -27,32 +29,23 @@ public class Produto {
         @JoinColumn(name = "categoria_id")
         private Categoria categoria;
 
-        public Produto(DadosCadastroProduto dadosProduto) {
 
-                this.codProd = dadosProduto.codProd();
-                this.codEan = dadosProduto.codEan();
-                this.nomeProd = dadosProduto.nomeProd();
-                this.custoProd = dadosProduto.custoProd();
-                this.categoria = dadosProduto.categoria();
-
+        public Produto(String codProd, String codEan, String nomeProd, BigDecimal custoProd, LocalDateTime data, Categoria categoria) {
+                this.codProd = codProd;
+                this.codEan = codEan;
+                this.nomeProd = nomeProd;
+                this.custoProd = custoProd;
+                this.data = data;
+                this.categoria = categoria;
         }
+
         public Produto( String codProd, String codEan, String nomeProd, BigDecimal custoProd){
                 this.codProd = codProd;
                 this.codEan = codEan;
                 this.nomeProd = nomeProd;
                 this.custoProd = custoProd;
         }
-        
-        public void atualizaProduto(DadosDetalheDoproduto dadosProduto){
 
-                this.id = dadosProduto.id();
-                this.codProd = dadosProduto.codProd();
-                this.codEan = dadosProduto.codEan();
-                this.nomeProd = dadosProduto.nomeProd();
-                this.custoProd = dadosProduto.custoProd();
-                this.categoria = dadosProduto.categoria();
-
-        }
 
 }
 

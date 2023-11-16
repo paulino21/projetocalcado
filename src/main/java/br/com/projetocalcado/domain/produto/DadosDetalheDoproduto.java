@@ -20,11 +20,10 @@ public record DadosDetalheDoproduto(
         @Digits(integer = 10 , fraction = 2)
         BigDecimal custoProd,
         @NotNull
-        @Valid
-        Categoria categoria
+        Long idCategoria
 ) {
     public DadosDetalheDoproduto(Produto produto) {
         this(produto.getId(), produto.getCodProd(), produto.getCodEan(), produto.getNomeProd(),
-                produto.getCustoProd() , produto.getCategoria());
+                produto.getCustoProd() , produto.getCategoria().getId());
     }
 }

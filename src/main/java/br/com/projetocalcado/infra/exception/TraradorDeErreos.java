@@ -29,6 +29,10 @@ public class TraradorDeErreos {
         }
         return ResponseEntity.badRequest().body(msn);
     }
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity tratarErroRegraDeNegocio(ValidacaoException ex){
+        return ResponseEntity.badRequest().body(ex.getMessage());
+    }
 }
 
 

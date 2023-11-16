@@ -19,8 +19,7 @@ public record DadosCadastroProduto(
         @Digits( integer = 10, fraction = 2)
         BigDecimal custoProd,
         @NotNull
-        @Valid
-        Categoria categoria
+        Long idCategoria
 
 ) {
 

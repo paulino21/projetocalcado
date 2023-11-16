@@ -25,8 +25,7 @@ public class ProdutoController {
     @Transactional
     public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroProduto dadosProduto, UriComponentsBuilder uriBuilder){
 
-        var produto = new Produto(dadosProduto);
-        repository.save(produto);
+        var produto = produtoService.cadastraProduto(dadosProduto);
         var uri = uriBuilder.path("/produto/{id}").buildAndExpand(produto.getId()).toUri();
         return ResponseEntity.created(uri).body(new DadosDetalheDoproduto(produto));
      }
@@ -35,8 +34,6 @@ public class ProdutoController {
          var page = repository.findAll(pageable).map(DadosListaProduto::new);
          return ResponseEntity.ok(page);
     }
-
-
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity deletaProduto(@PathVariable Long id){
@@ -52,9 +49,8 @@ public class ProdutoController {
     @PutMapping
     @Transactional
     public ResponseEntity atualizaProduto(@RequestBody @Valid DadosDetalheDoproduto dadosProduto){
-        var produto = repository.getReferenceById(dadosProduto.id());
-        produto.atualizaProduto(dadosProduto);
-        return ResponseEntity.ok(new DadosDetalheDoproduto(produto));
+        produtoService.atualizaProduto(dadosProduto);
+        return ResponseEntity.ok(produtoService.atualizaProduto(dadosProduto));
     }
     @GetMapping("/busca/{nome}")
     public ResponseEntity buscaPorNomeProduto(@PathVariable String nome){
