@@ -27,7 +27,7 @@ public record DadosDetalheNotaFiscal(
         @JsonIgnore
         @JsonFormat(pattern =" dd/MM/yyyy")
         @NotNull
-        LocalDate dataLacamento,
+        LocalDate dataLancamento,
         @NotNull
         @Valid
         Fornecedor fornecedor,
@@ -40,7 +40,7 @@ public record DadosDetalheNotaFiscal(
 
     public DadosDetalheNotaFiscal(NotaFiscal nota) {
 
-        this(nota.getId(), nota.getNumeroNF(), nota.getDataEmissao(), nota.getValorTotal(), nota.getDataLacamento(),
+        this(nota.getId(), nota.getNumeroNF(), nota.getDataEmissao(), nota.getValorTotal(), nota.getDataLancamento(),
                 nota.getFornecedor(), nota.getItens(), nota.getDuplicatas());
 
     }

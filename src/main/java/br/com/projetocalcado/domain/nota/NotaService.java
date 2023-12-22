@@ -2,6 +2,9 @@ package br.com.projetocalcado.domain.nota;
 
 import br.com.projetocalcado.converter.ConverterData;
 import br.com.projetocalcado.converter.ConverterInt;
+import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
+import br.com.projetocalcado.domain.estoque.Estoque;
+import br.com.projetocalcado.domain.estoque.EstoqueRepository;
 import br.com.projetocalcado.domain.xmlnota.*;
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
@@ -15,11 +18,13 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 @Service
 public class NotaService {
-
+    private Estoque estoque;
     private Fornecedor fornecedor;
     private Duplicata duplicata;
     private Produto produto;
     private ItensNota itensNota;
+    @Autowired
+    MovimentacaoEstoqueService movimentacaoEstoqueService;
     @Autowired
     NotaFiscalRepository notaFiscalRepository;
     @Autowired
@@ -28,6 +33,8 @@ public class NotaService {
     FornecedorRepository fornecedorRepository;
     @Autowired
     private XstreamConfig xStream;
+    @Autowired
+    private EstoqueRepository estoqueRepository;
 
     public DadosDetalheNotaFiscal cadastraNota(DadosNotaFiscal dadosNota) {
 
@@ -78,17 +85,28 @@ public class NotaService {
 
                for (ProdDetalheNota prodD : detItens.getProdutos()){
 
-                   produto = new Produto( prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit());
+                   estoque = new Estoque(prodD.getQuantidade());
+                   produto = new Produto( prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit(), estoque);
 
-                   if(!produtoRepository.existsByCodEan(produto.getCodEan())){
+                   if(!produtoRepository.existsByCodEan(prodD.getCodEan())){
+
+                       estoqueRepository.save(estoque);
+                       estoque.adicionarProduto(produto);
                        produtoRepository.save(produto);
                        itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
                        nota.adiconarItem(itensNota);
+                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , prodD.getQuantidade());
                    }
                    else {
                        produto = produtoRepository.findByCodEan(produto.getCodEan());
+                       int novaQuantidade = produto.getEstoque().getQuantidade() + prodD.getQuantidade();
+                       var estoque = estoqueRepository.getReferenceById(produto.getEstoque().getId());
+                       estoque.setQuantidade(novaQuantidade);
+                       produto.setEstoque(estoque);
                        itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
                        nota.adiconarItem(itensNota);
+                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , prodD.getQuantidade());
+
                    }
 
                }

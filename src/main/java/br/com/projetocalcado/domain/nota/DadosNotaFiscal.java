@@ -20,7 +20,7 @@ public record DadosNotaFiscal(
         @NotNull
         Long idProduto,
         @NotNull
-        int quantidade,
+        Integer quantidade,
         @Valid
         @NotNull
         List<Duplicata> duplicatas

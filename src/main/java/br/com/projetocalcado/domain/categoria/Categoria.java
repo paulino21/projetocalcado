@@ -1,13 +1,13 @@
 package br.com.projetocalcado.domain.categoria;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import br.com.projetocalcado.domain.produto.Produto;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -19,6 +19,8 @@ public class Categoria {
     private Long id;
     @NotNull
     private String nome;
+    @OneToMany(mappedBy = "categoria")
+    private List<Produto> produto;
 
     public Categoria(DadosCategoria dadosCategoria) {
 

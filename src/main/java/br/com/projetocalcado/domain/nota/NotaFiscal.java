@@ -27,7 +27,7 @@ public class NotaFiscal implements Serializable {
     private Long numeroNF;
     private LocalDateTime dataEmissao;
     private BigDecimal valorTotal = BigDecimal.ZERO;
-    private LocalDate dataLacamento = LocalDate.now();
+    private LocalDate dataLancamento = LocalDate.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fornecedor_id")
@@ -50,5 +50,7 @@ public class NotaFiscal implements Serializable {
     public void adicionaPagamento(Duplicata duplicata) {
         duplicata.setNotaFiscal(this);
         this.getDuplicatas().add(duplicata);
+
+
     }
 }
