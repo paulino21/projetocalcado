@@ -23,11 +23,9 @@ public class Categoria {
     private List<Produto> produto;
 
     public Categoria(DadosCategoria dadosCategoria) {
-
         this.nome = dadosCategoria.nome();
     }
     public void atualizaCategoria(DadosDetalheCategoria dadosCategoria) {
-        this.id = dadosCategoria.id();
         this.nome = dadosCategoria.nome();
     }
 }
