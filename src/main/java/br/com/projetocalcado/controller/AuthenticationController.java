@@ -28,30 +28,30 @@ public class AuthenticationController {
     UserRepository userRepository;
     @Autowired
     TokenService tokenService;
+
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid DadosAutenticacao dados ){
+    public ResponseEntity login(@RequestBody @Valid DadosAutenticacao dados) {
 
         var userNamePassword = new UsernamePasswordAuthenticationToken(dados.login(), dados.senha());
         var authentication = this.authenticationManager.authenticate(userNamePassword);
-
         var token = tokenService.gerartoken((User) authentication.getPrincipal());
-
         return ResponseEntity.ok(new DadosToken(token));
     }
+
     @PostMapping("/registro")
     @SecurityRequirement(name = "bearer-key")
-    public ResponseEntity cadastraLogin(@RequestBody  @Valid DadosCadastraLogin dados){
+    public ResponseEntity cadastraLogin(@RequestBody @Valid DadosCadastraLogin dados) {
 
-        if(userRepository.findByLogin(dados.login() )!= null) return ResponseEntity.badRequest().build();
+        if (userRepository.findByLogin(dados.login()) != null)
+            return ResponseEntity.badRequest().build();
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(dados.senha());
-        User usuario = new User(dados.login(), encryptedPassword , dados.role());
+        User usuario = new User(dados.login(), encryptedPassword, dados.role());
         userRepository.save(usuario);
 
         return ResponseEntity.ok().build();
 
     }
-
 
 
 }

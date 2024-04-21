@@ -1,6 +1,5 @@
 package br.com.projetocalcado.domain.produto;
 
-import br.com.projetocalcado.domain.categoria.Categoria;
 import br.com.projetocalcado.domain.categoria.CategoriaRepository;
 import br.com.projetocalcado.infra.exception.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class ProdutoService {
         }
         var categoria = categoriaRepository.getReferenceById(dadosProduto.idCategoria());
         var produto = new Produto( dadosProduto.codProd(), dadosProduto.codEan(), dadosProduto.nomeProd(),
-                dadosProduto.custoProd(), LocalDateTime.now(), categoria);
+                dadosProduto.custoProd(), dadosProduto.precoVenda(), LocalDateTime.now(), categoria);
         produtoRepository.save(produto);
 
         return produto;

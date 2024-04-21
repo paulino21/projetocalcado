@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.nota;
+package br.com.projetocalcado.domain.Pedido;
 
 import br.com.projetocalcado.domain.produto.Produto;
 import jakarta.persistence.*;
@@ -8,35 +8,33 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class ItensNota {
+public class ItensPedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private BigDecimal precoCusto;
+    private BigDecimal precoVenda;
     private int quantidade;
     private BigDecimal subTotalProd;
     @ManyToOne
-    private NotaFiscal notaFiscal;
+    private Pedido pedido;
     @ManyToOne
     private Produto produto;
-
-    public ItensNota(int quantidade, NotaFiscal notaFiscal, Produto produto) {
+    public ItensPedido(int quantidade, Pedido pedido, Produto produto) {
         this.quantidade = quantidade;
-        this.notaFiscal = notaFiscal;
+        this.pedido = pedido;
         this.produto = produto;
-        this.precoCusto = produto.getCustoProd();
+        this.precoVenda = produto.getPrecoVenda();
         this.subTotalProd = getValor();
-
     }
-    public BigDecimal getValor()
-    {
-        return precoCusto.multiply(new BigDecimal(quantidade));
+    public BigDecimal getValor() {
+        return precoVenda.multiply(new BigDecimal(quantidade));
     }
 
 }

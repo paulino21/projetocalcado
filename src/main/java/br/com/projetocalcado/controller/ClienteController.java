@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 @SecurityRequirement(name = "bearer-key")
 @RestController
-@RequestMapping("cliente")
+@RequestMapping("/cliente")
 public class ClienteController {
     @Autowired
     ClienteRepository clienteRepository;
