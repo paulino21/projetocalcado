@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 public class Categoria {
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;

@@ -9,9 +9,9 @@ public class MovimentacaoEstoqueService {
 
     @Autowired
     MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
-    public void registraEntradaMovimentacao(Produto produto , Integer quantidade){
+    public void registraEntradaMovimentacao(Produto produto ,TipoMovimentacao tipoMovimentacao, Integer quantidade){
 
-        var movimentacaoEstoque = new MovimentacaoEstoque(produto , quantidade);
+        var movimentacaoEstoque = new MovimentacaoEstoque(produto, tipoMovimentacao, quantidade);
         movimentacaoEstoqueRepository.save(movimentacaoEstoque);
     }
 

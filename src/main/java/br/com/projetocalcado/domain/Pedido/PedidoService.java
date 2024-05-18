@@ -4,8 +4,15 @@ import br.com.projetocalcado.domain.cliente.Cliente;
 import br.com.projetocalcado.domain.cliente.ClienteRepository;
 import br.com.projetocalcado.domain.cliente.DadosDetalheCliente;
 import br.com.projetocalcado.domain.estoque.EstoqueRepository;
+import br.com.projetocalcado.domain.financeiro.Lancamento;
+import br.com.projetocalcado.domain.financeiro.LancamentoRepository;
+import br.com.projetocalcado.domain.financeiro.LancamentoService;
+import br.com.projetocalcado.domain.financeiro.TipoLancamento;
+import br.com.projetocalcado.domain.financeiro.tipoLancamento.TabelaLancamentoRepository;
 import br.com.projetocalcado.domain.metodoPagamento.FormaPagamentoRepository;
 import br.com.projetocalcado.domain.metodoPagamento.TipoPagamento;
+import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
+import br.com.projetocalcado.domain.movimentacaoEstoque.TipoMovimentacao;
 import br.com.projetocalcado.domain.pagamentoPedido.DadosPagamento;
 import br.com.projetocalcado.domain.pagamentoPedido.DadosPagamentoEfetuado;
 import br.com.projetocalcado.domain.pagamentoPedido.DadosRetornoPagamento;
@@ -30,16 +37,27 @@ public class PedidoService {
     ClienteRepository clienteRepository;
     @Autowired
     PedidoRepository pedidoRepository;
+    @Autowired
+    LancamentoService lancamentoService;
+    @Autowired
+    TabelaLancamentoRepository tabelaLancamentoRepository;
     private Cliente cliente;
     private PagamentoPedido pagamentoPedido;
     public List<ItemDaCompra> produtos = new ArrayList<>();
     public List<PagamentoPedido> pagamentos = new ArrayList<>();
+    public List<Lancamento> lancamentos = new ArrayList<>();
     private BigDecimal totalPedido = BigDecimal.ZERO;
     @Getter
     private BigDecimal totalPago = BigDecimal.ZERO;
     private BigDecimal subTotal = BigDecimal.ZERO;
     private int numpagto = 0;
     public List<DadosPagamentoEfetuado> pagamentosEfetuados = new ArrayList<>();
+    @Autowired
+    MovimentacaoEstoqueService movimentacaoEstoqueService;
+
+    @Autowired
+    LancamentoRepository lancamentoRepository;
+
     @Autowired
     FormaPagamentoRepository formaPagamentoRepository;
     @Autowired
@@ -99,22 +117,37 @@ public class PedidoService {
         if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.CREDITO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now().plusMonths(1), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now().plusMonths(1), false, null);
+            lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.CREDITO) && dadosPagamento.numParcela() > 1) {
             var valorDaParcela = dadosPagamento.valor().divide(BigDecimal.valueOf(dadosPagamento.numParcela()), 2, RoundingMode.HALF_UP);
             for (int i = 1; i <= dadosPagamento.numParcela(); i++) {
                 LocalDate vencimento = LocalDate.now().plusMonths(i);
                 var pagto = new PagamentoPedido(i, valorDaParcela, vencimento, new Pedido(cliente), formaPgamanto.getDescricao());
                 pagamentos.add(pagto);
+                var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
+                var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), valorDaParcela, vencimento, false, null);
+                lancamentos.add(lancamento);
             }
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.PIX) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.DEBITO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.DINHEIRO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            lancamentos.add(lancamento);
         }
         this.totalPago = this.totalPago.add(dadosPagamento.valor());
         criaDtoRetornoPgto(dadosPagamento.numParcela(), formaPgamanto.getDescricao(), dadosPagamento.valor());
@@ -134,7 +167,7 @@ public class PedidoService {
 
         var pedido = new Pedido(cliente);
         if (cliente != null && !produtos.isEmpty() && !pagamentos.isEmpty()) {
-            if(totalPago.compareTo(totalPedido) == -1){
+            if (totalPago.compareTo(totalPedido) == -1) {
                 throw new ValidacaoException("O valor do pagamento é menor que o valor do pedido ");
             }
             for (ItemDaCompra item : produtos) {
@@ -143,9 +176,15 @@ public class PedidoService {
                 estoque.setQuantidade(novaQuantidade);
                 var itemPedido = new ItensPedido(item.getQuantidade(), pedido, item.getProduto());
                 pedido.adiconarItem(itemPedido);
+                movimentacaoEstoqueService.registraEntradaMovimentacao(item.getProduto(), TipoMovimentacao.SAIDA, item.getQuantidade());
             }
             for (PagamentoPedido pagto : pagamentos) {
                 pedido.adicionaPagamentoPedido(pagto);
+            }
+           for(Lancamento lancamento : lancamentos){
+               lancamentoRepository.save(lancamento);
+
+
             }
             pedidoRepository.save(pedido);
             produtos.clear();
@@ -156,6 +195,7 @@ public class PedidoService {
             subTotal = BigDecimal.ZERO;
             cliente = null;
             numpagto = 0;
+            lancamentos.clear();
         } else {
             throw new ValidacaoException("Você precisa adicionar cliente, produto e pagamento antes de finalizar o pedido");
         }

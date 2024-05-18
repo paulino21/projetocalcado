@@ -5,6 +5,7 @@ import br.com.projetocalcado.converter.ConverterInt;
 import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
 import br.com.projetocalcado.domain.estoque.Estoque;
 import br.com.projetocalcado.domain.estoque.EstoqueRepository;
+import br.com.projetocalcado.domain.movimentacaoEstoque.TipoMovimentacao;
 import br.com.projetocalcado.domain.xmlnota.*;
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
@@ -95,7 +96,7 @@ public class NotaService {
                        produtoRepository.save(produto);
                        itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
                        nota.adiconarItem(itensNota);
-                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , prodD.getQuantidade());
+                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , TipoMovimentacao.ENTRADA, prodD.getQuantidade());
                    }
                    else {
                        produto = produtoRepository.findByCodEan(produto.getCodEan());
@@ -105,7 +106,7 @@ public class NotaService {
                        produto.setEstoque(estoque);
                        itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
                        nota.adiconarItem(itensNota);
-                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , prodD.getQuantidade());
+                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto ,TipoMovimentacao.ENTRADA, prodD.getQuantidade());
 
                    }
 

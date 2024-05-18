@@ -22,15 +22,15 @@ public class MovimentacaoEstoque {
     private LocalDateTime dataMovimentacao =  LocalDateTime.now();
     private Integer QuantidadeMovimentaco;
     @Enumerated(EnumType.STRING)
-    private TipoMovimentacao tipo;
+    private TipoMovimentacao tipoMovimentacao;
     @JoinColumn( name = "produto_id")
     @ManyToOne
     private Produto produto;
 
 
-    public MovimentacaoEstoque(Produto produto , Integer quantidade) {
+    public MovimentacaoEstoque(Produto produto ,TipoMovimentacao tipoMovimentacao, Integer quantidade) {
         this.produto = produto;
-        this.tipo = TipoMovimentacao.ENTRADA;
+        this.tipoMovimentacao = tipoMovimentacao;
         this.QuantidadeMovimentaco = quantidade;
 
     }
