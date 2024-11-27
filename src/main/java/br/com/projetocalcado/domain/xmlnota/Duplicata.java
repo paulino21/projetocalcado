@@ -34,7 +34,7 @@ public class Duplicata {
     private NotaFiscal notaFiscal;
     @XStreamAlias("nDup")
     @NotNull
-    private Long numParcelaDup;
+    private Integer numParcelaDup;
     @XStreamAlias("dVenc")
     @NotNull
     @JsonFormat(pattern="dd/MM/yyyy")
@@ -45,7 +45,7 @@ public class Duplicata {
     @Positive
     private BigDecimal valorDup;
 
-    public Duplicata(Long numParcelaDup, LocalDate dataVenc, BigDecimal valorDup , NotaFiscal notaFiscal ){
+    public Duplicata(Integer numParcelaDup, LocalDate dataVenc, BigDecimal valorDup , NotaFiscal notaFiscal ){
         this.numParcelaDup = numParcelaDup;
         this.dataVenc = dataVenc;
         this.valorDup = valorDup;

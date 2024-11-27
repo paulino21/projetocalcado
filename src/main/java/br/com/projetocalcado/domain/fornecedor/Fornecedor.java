@@ -7,9 +7,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @XStreamAlias("emit")
@@ -36,8 +38,7 @@ public class Fornecedor {
           this.enderFornecedor = dadosFornecedor.enderFornecedor();
           this.inscricaoEstadual = dadosFornecedor.inscricaoEstadual();
      }
-
-       public void atualizaFornecedor (DadosDetalheFornecedor dadosFornecedor){
+    public void atualizaFornecedor (DadosDetalheFornecedor dadosFornecedor){
           this.id = dadosFornecedor.id();
           this.cnpj = dadosFornecedor.cnpj();
           this.razaoSocial = dadosFornecedor.razaoSocial();

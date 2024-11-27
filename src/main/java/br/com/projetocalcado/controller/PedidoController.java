@@ -1,7 +1,7 @@
 package br.com.projetocalcado.controller;
 
 import br.com.projetocalcado.domain.Pedido.PedidoService;
-import br.com.projetocalcado.domain.pagamentoPedido.DadosPagamento;
+import br.com.projetocalcado.domain.pagamentos.DadosPagamento;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ public class PedidoController {
     PedidoService pedidoService;
     @GetMapping("/cliente/{id}")
     public ResponseEntity adicionaClienteDoPedido(@PathVariable Long id) {
-        pedidoService.buscaCliente(id);
         return ResponseEntity.ok(pedidoService.buscaCliente(id));
     }
     @GetMapping("/{ean}/{quantidade}")

@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.pagamentoPedido;
+package br.com.projetocalcado.domain.pagamentos;
 
 import br.com.projetocalcado.domain.Pedido.Pedido;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -21,8 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class PagamentoPedido {
-
+public class PagamentoPedido{
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -49,9 +48,5 @@ public class PagamentoPedido {
         this.dataVenc = dataVenc;
         this.pedido = pedido;
         this.formaPagamento = formaPagamento;
-
-
     }
-
-
 }

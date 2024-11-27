@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.pagamentoPedido;
+package br.com.projetocalcado.domain.pagamentos;
 
 import java.math.BigDecimal;
 

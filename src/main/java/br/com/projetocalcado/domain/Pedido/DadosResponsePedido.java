@@ -10,7 +10,7 @@ public record DadosResponsePedido(
         BigDecimal valorTotal,
         @JsonFormat(pattern =" dd/MM/yyyy")
         LocalDate dataPedido) {
-            public DadosResponsePedido(Pedido pedido) {
-            this(pedido.getId(), pedido.getValorTotal(), pedido.getDataPedido());
+       public DadosResponsePedido(Pedido pedido) {
+           this(pedido.getId(), pedido.getValorTotal(), pedido.getDataPedido());
         }
 }

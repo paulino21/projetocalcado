@@ -11,12 +11,15 @@ public class ItemDaCompra {
 
     private Integer quantidade;
     private Produto produto;
-    private BigDecimal subTotalProd;
+    private BigDecimal subTotalProdVenda;
+    private BigDecimal subTotalProdCompra;
 
-    ItemDaCompra( Integer quantidade, Produto produto){
+    public ItemDaCompra( Integer quantidade, Produto produto){
         this.quantidade = quantidade;
         this.produto = produto;
-        this.subTotalProd = produto.getPrecoVenda().multiply(new BigDecimal(quantidade));
+        this.subTotalProdVenda = produto.getPrecoVenda().multiply(new BigDecimal(quantidade));
+        this.subTotalProdCompra = produto.getCustoProd().multiply(new BigDecimal(quantidade));
+
     }
 
 }

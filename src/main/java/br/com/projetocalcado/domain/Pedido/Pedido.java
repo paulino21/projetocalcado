@@ -1,7 +1,7 @@
 package br.com.projetocalcado.domain.Pedido;
 
 import br.com.projetocalcado.domain.cliente.Cliente;
-import br.com.projetocalcado.domain.pagamentoPedido.PagamentoPedido;
+import br.com.projetocalcado.domain.pagamentos.PagamentoPedido;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

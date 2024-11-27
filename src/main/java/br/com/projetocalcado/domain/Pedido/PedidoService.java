@@ -13,16 +13,15 @@ import br.com.projetocalcado.domain.metodoPagamento.FormaPagamentoRepository;
 import br.com.projetocalcado.domain.metodoPagamento.TipoPagamento;
 import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
 import br.com.projetocalcado.domain.movimentacaoEstoque.TipoMovimentacao;
-import br.com.projetocalcado.domain.pagamentoPedido.DadosPagamento;
-import br.com.projetocalcado.domain.pagamentoPedido.DadosPagamentoEfetuado;
-import br.com.projetocalcado.domain.pagamentoPedido.DadosRetornoPagamento;
-import br.com.projetocalcado.domain.pagamentoPedido.PagamentoPedido;
+import br.com.projetocalcado.domain.pagamentos.DadosPagamento;
+import br.com.projetocalcado.domain.pagamentos.DadosPagamentoEfetuado;
+import br.com.projetocalcado.domain.pagamentos.DadosRetornoPagamento;
+import br.com.projetocalcado.domain.pagamentos.PagamentoPedido;
 import br.com.projetocalcado.domain.produto.ProdutoRepository;
 import br.com.projetocalcado.infra.exception.ValidacaoException;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -49,15 +48,12 @@ public class PedidoService {
     private BigDecimal totalPedido = BigDecimal.ZERO;
     @Getter
     private BigDecimal totalPago = BigDecimal.ZERO;
-    private BigDecimal subTotal = BigDecimal.ZERO;
     private int numpagto = 0;
     public List<DadosPagamentoEfetuado> pagamentosEfetuados = new ArrayList<>();
     @Autowired
     MovimentacaoEstoqueService movimentacaoEstoqueService;
-
     @Autowired
     LancamentoRepository lancamentoRepository;
-
     @Autowired
     FormaPagamentoRepository formaPagamentoRepository;
     @Autowired
@@ -75,13 +71,14 @@ public class PedidoService {
         for (ItemDaCompra itemDaCompra : produtos) {
             if (itemDaCompra.getProduto().getId() == produto.getId()) {
                 itemDaCompra.setQuantidade(itemDaCompra.getQuantidade() + quantidade);
-                itemDaCompra.setSubTotalProd(itemDaCompra.getSubTotalProd().add(produto.getPrecoVenda().multiply(new BigDecimal(quantidade))));
+                itemDaCompra.setSubTotalProdVenda(itemDaCompra.getSubTotalProdVenda().add(produto.getPrecoVenda().multiply(new BigDecimal(quantidade))));
                 produtoJaExistente = true;
                 break;
             }
         }
         if (!produtoJaExistente) {
             var item = new ItemDaCompra(quantidade, produto);
+            item.setSubTotalProdCompra(new BigDecimal(0));
             produtos.add(item);
         }
         this.totalPedido = this.totalPedido.add(produto.getPrecoVenda().multiply(new BigDecimal(quantidade)));
@@ -117,8 +114,8 @@ public class PedidoService {
         if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.CREDITO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now().plusMonths(1), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
-            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
-            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now().plusMonths(1), false, null);
+                var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("VENDA");
+                var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, tabelaLancamento.getNome(), formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now().plusMonths(1), false, null);
             lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.CREDITO) && dadosPagamento.numParcela() > 1) {
             var valorDaParcela = dadosPagamento.valor().divide(BigDecimal.valueOf(dadosPagamento.numParcela()), 2, RoundingMode.HALF_UP);
@@ -126,27 +123,27 @@ public class PedidoService {
                 LocalDate vencimento = LocalDate.now().plusMonths(i);
                 var pagto = new PagamentoPedido(i, valorDaParcela, vencimento, new Pedido(cliente), formaPgamanto.getDescricao());
                 pagamentos.add(pagto);
-                var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
-                var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), valorDaParcela, vencimento, false, null);
+                var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("VENDA");
+                var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "VENDA", formaPgamanto.getDescricao(), valorDaParcela, vencimento, false, null);
                 lancamentos.add(lancamento);
             }
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.PIX) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
-            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
-            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("VENDA");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "VENDA", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
             lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.DEBITO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
-            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
-            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("VENDA");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "VENDA", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
             lancamentos.add(lancamento);
         } else if (formaPgamanto.getTipoPagamento().equals(TipoPagamento.DINHEIRO) && dadosPagamento.numParcela() == 1) {
             var pagto = new PagamentoPedido(dadosPagamento.numParcela(), dadosPagamento.valor(), LocalDate.now(), new Pedido(cliente), formaPgamanto.getDescricao());
             pagamentos.add(pagto);
-            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("PEDIDO");
-            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "PEDIDO", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("VENDA");
+            var lancamento = new Lancamento(TipoLancamento.RECEITA, tabelaLancamento, "VENDA", formaPgamanto.getDescricao(), dadosPagamento.valor(), LocalDate.now(), true, LocalDate.now());
             lancamentos.add(lancamento);
         }
         this.totalPago = this.totalPago.add(dadosPagamento.valor());
@@ -164,7 +161,6 @@ public class PedidoService {
     }
 
     public DadosResponsePedido finalizaPedido() {
-
         var pedido = new Pedido(cliente);
         if (cliente != null && !produtos.isEmpty() && !pagamentos.isEmpty()) {
             if (totalPago.compareTo(totalPedido) == -1) {
@@ -183,23 +179,24 @@ public class PedidoService {
             }
            for(Lancamento lancamento : lancamentos){
                lancamentoRepository.save(lancamento);
-
-
             }
-            pedidoRepository.save(pedido);
-            produtos.clear();
-            pagamentos.clear();
-            pagamentosEfetuados.clear();
-            totalPedido = BigDecimal.ZERO;
-            totalPago = BigDecimal.ZERO;
-            subTotal = BigDecimal.ZERO;
-            cliente = null;
-            numpagto = 0;
-            lancamentos.clear();
+           pedidoRepository.save(pedido);
+           resetaDadosPedidos();
+
         } else {
             throw new ValidacaoException("Você precisa adicionar cliente, produto e pagamento antes de finalizar o pedido");
         }
         return new DadosResponsePedido(pedido);
+    }
+    public void resetaDadosPedidos(){
+        produtos.clear();
+        pagamentos.clear();
+        pagamentosEfetuados.clear();
+        totalPedido = BigDecimal.ZERO;
+        totalPago = BigDecimal.ZERO;
+        numpagto = 0;
+        lancamentos.clear();
+        cliente = null;
     }
 
 }
