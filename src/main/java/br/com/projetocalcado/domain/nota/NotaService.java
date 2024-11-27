@@ -71,23 +71,6 @@ public class NotaService {
     private NotaFiscal nota;
     public List<DadosPagamentoEfetuadoNota> pagamentosEfetuadosNotas = new ArrayList<>();
 
-
-    public DadosDetalheNotaFiscal cadastraNota(DadosNotaFiscal dadosNota) {
-
-        var fornecedor = fornecedorRepository.getReferenceById(dadosNota.idFornecedor());
-        var produto = produtoRepository.getReferenceById(dadosNota.idProduto());
-        var nota = new NotaFiscal(dadosNota.numeroNF(), dadosNota.dataEmissao(), fornecedor);
-        var itemPedido = new ItensNota(dadosNota.quantidade(), nota, produto);
-
-        for (Duplicata dup : dadosNota.duplicatas()) {
-            duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
-            nota.adicionaPagamento(duplicata);
-        }
-        nota.adiconarItem(itemPedido);
-        notaFiscalRepository.save(nota);
-        return new DadosDetalheNotaFiscal(nota);
-    }
-
     public InfNFe devolveDadosXml(String caminho) {
 
         File file = new File("c:\\arq\\" + caminho);
