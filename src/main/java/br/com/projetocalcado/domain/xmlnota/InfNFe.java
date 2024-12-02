@@ -20,6 +20,8 @@ public class InfNFe {
    private List <DetItens> detList;
    @XStreamAlias("cobr")
    private Cobranca cobranca;
+   @XStreamAlias("pag")
+   private Pag pag;
 
 
 }

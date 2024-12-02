@@ -54,11 +54,15 @@ public class NotaService {
     @Autowired
     FormaPagamentoRepository formaPagamentoRepository;
     @Autowired
+    DetPagRepository repository;
+    @Autowired
     private XstreamConfig xStream;
     @Autowired
     private EstoqueRepository estoqueRepository;
     @Autowired
     TabelaLancamentoRepository tabelaLancamentoRepository;
+    @Autowired
+    DetPagRepository detPagRepository;
 
     @Getter
     private BigDecimal totalPago = BigDecimal.ZERO;
@@ -95,10 +99,13 @@ public class NotaService {
             fornecedor = fornecedorRepository.findByCnpj(infXml.getFornecedor().getCnpj());
         }
         var nota = new NotaFiscal(infXml.getIdentifNota().getNumeroNF(), infXml.getIdentifNota().getDataEmiss(), fornecedor);
-
+            var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
+            var formaPagamento = detPagRepository.findBynumPagtoTpag(infXml.getPag().getDetPag().getNumPagtoTpag());
         for(Duplicata dup: infXml.getCobranca().getDuplicatas() ){
               duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
               nota.adicionaPagamento(duplicata);
+              var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPagamento.getNome(), dup.getValorDup(), dup.getDataVenc(), false, null);
+            lancamentos.add(lancamento);
         }
            for(DetItens detItens : infXml.getDetList()){
 
@@ -128,6 +135,9 @@ public class NotaService {
                    }
                }
            }
+            for(Lancamento lancamento : lancamentos){
+                lancamentoRepository.save(lancamento);
+            }
             notaFiscalRepository.save(nota);
             return new DadosDetalheNotaFiscal(nota);
     }
@@ -185,7 +195,7 @@ public class NotaService {
         var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
         var formaPgamanto = formaPagamentoRepository.getReferenceById(dadosDuplicata.idFormaPagto());
         var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPgamanto.getDescricao(), dadosDuplicata.valorDup(), dadosDuplicata.dataVenc(), false, null);
-            lancamentos.add(lancamento);
+        lancamentos.add(lancamento);
         this.totalPago = totalPago.add(dadosDuplicata.valorDup());
         criaDtoRetornoPgto(numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup());
     }
