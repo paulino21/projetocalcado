@@ -11,10 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import java.util.List;
 @SecurityRequirement(name = "bearer-key")
 @RestController
-@RequestMapping("/produto")
+@RequestMapping("/produtos")
 public class ProdutoController {
 
     @Autowired
@@ -48,13 +47,18 @@ public class ProdutoController {
     }
     @PutMapping
     @Transactional
-    public ResponseEntity atualizaProduto(@RequestBody @Valid DadosDetalheDoproduto dadosProduto){
-        produtoService.atualizaProduto(dadosProduto);
-        return ResponseEntity.ok(produtoService.atualizaProduto(dadosProduto));
+    public ResponseEntity atualizaProduto(@RequestBody @Valid DadosProdutoAlterado dadosProdutoAlterado){
+        produtoService.atualizaProduto(dadosProdutoAlterado);
+        return ResponseEntity.ok(produtoService.atualizaProduto(dadosProdutoAlterado));
     }
-    @GetMapping("/busca/{nome}")
-    public ResponseEntity buscaPorNomeProduto(@PathVariable String nome){
-        List<Produto> produtos = repository.findByNomeProdStartingWithIgnoreCase(nome);
+    @GetMapping("/busca/{termoBusca}")
+    public ResponseEntity buscaPorNomeProduto(@PathVariable String termoBusca){
+        var produtos = repository.findByNomeProdStartingWithIgnoreCase(termoBusca).stream().map(DadosDetalheDoproduto::new);
+        return ResponseEntity.ok(produtos);
+    }
+    @GetMapping("/busca/porEan/{termoBusca}")
+    public ResponseEntity buscaPorEanProduto(@PathVariable String termoBusca){
+       var produtos = repository.findByCodEanStartingWithIgnoreCase(termoBusca).stream().map(DadosDetalheDoproduto::new);;
         return ResponseEntity.ok(produtos);
     }
 }

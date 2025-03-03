@@ -33,9 +33,7 @@ public class Produto {
 
         @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "categoria_id")
-        @JsonIgnore
         private Categoria categoria;
-        @JsonIgnore
         @JoinColumn(name = "estoque_id")
         @ManyToOne
         private Estoque estoque;
@@ -44,7 +42,7 @@ public class Produto {
         private List<MovimentacaoEstoque> movimentacoes;
 
 
-        public Produto(String codProd, String codEan, String nomeProd, BigDecimal custoProd, BigDecimal precoVenda, LocalDateTime data, Categoria categoria) {
+        public Produto(String codProd, String codEan, String nomeProd, BigDecimal custoProd, BigDecimal precoVenda, LocalDateTime data, Categoria categoria, Estoque estoque) {
                 this.codProd = codProd;
                 this.codEan = codEan;
                 this.nomeProd = nomeProd;
@@ -52,6 +50,7 @@ public class Produto {
                 this.precoVenda = precoVenda;
                 this.data = data;
                 this.categoria = categoria;
+                this.estoque = estoque;
         }
 
         public Produto(String codProd, String codEan, String nomeProd, BigDecimal custoProd, Estoque estoque){

@@ -8,4 +8,6 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeProdStartingWithIgnoreCase(String nome);
     boolean existsByCodEan(String codEAN);
     Produto findByCodEan(String codEAN);
+
+    List<Produto> findByCodEanStartingWithIgnoreCase(String termoBusca);
 }

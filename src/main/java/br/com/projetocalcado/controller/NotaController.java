@@ -26,7 +26,7 @@ public class NotaController {
             var uri = uriBuilder.path("/nota/{id}").buildAndExpand(nota.id()).toUri();
         return ResponseEntity.created(uri).body(nota);
     }
-    @GetMapping("/cabecalhoNota")
+    @PostMapping("/cabecalhoNota")
     public ResponseEntity trataCabecalhoNota(@RequestBody @Valid DadosCabecalhoNota dadosCabecalhoNota) {
         return ResponseEntity.ok(notaService.trataCabecalhoNota(dadosCabecalhoNota));
     }

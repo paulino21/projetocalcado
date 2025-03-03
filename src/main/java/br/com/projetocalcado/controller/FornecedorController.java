@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("/fornecedor")
+@RequestMapping("/fornecedores")
 @RestController
 public class FornecedorController {
     @Autowired
@@ -47,4 +47,9 @@ public class FornecedorController {
         return ResponseEntity.ok(new DadosDetalheFornecedor(fornecedor));
     }
 
+    @GetMapping
+    public ResponseEntity listaFornecedores(){
+        var fornecedores = fornecedorRepository.findAll().stream().map(DadosDetalheFornecedor::new);
+        return ResponseEntity.ok(fornecedores);
+    }
 }

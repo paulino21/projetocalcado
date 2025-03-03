@@ -3,10 +3,12 @@ package br.com.projetocalcado.domain.produto;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
-public record DadosCadastroProduto(
+
+public record DadosProdutoAlterado(
+        @NotNull
+        Long id,
         @NotBlank
         String codProd,
         @NotBlank
@@ -14,17 +16,14 @@ public record DadosCadastroProduto(
         @NotBlank
         String nomeProd,
         @NotNull
-        @Positive
-        @Digits( integer = 10, fraction = 2)
+        @Digits(integer = 10 , fraction = 2)
+        BigDecimal precoVenda,
+        @Digits(integer = 10 , fraction = 2)
         BigDecimal custoProd,
         @NotNull
-        @Positive
-        @Digits( integer = 10, fraction = 2)
-        BigDecimal precoVenda,
-        @NotNull
         Long idCategoria,
+        @NotNull
         Integer quantidadeEstoque
-
 ) {
 
 }

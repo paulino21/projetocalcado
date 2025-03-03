@@ -1,9 +1,6 @@
 package br.com.projetocalcado.controller;
 
-import br.com.projetocalcado.domain.categoria.Categoria;
-import br.com.projetocalcado.domain.categoria.CategoriaRepository;
-import br.com.projetocalcado.domain.categoria.DadosCategoria;
-import br.com.projetocalcado.domain.categoria.DadosDetalheCategoria;
+import br.com.projetocalcado.domain.categoria.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
 @SecurityRequirement(name = "bearer-key")
-@RequestMapping("/categoria")
+@RequestMapping("/categorias")
 @RestController
 public class CategoriaController {
     @Autowired
@@ -30,7 +25,7 @@ public class CategoriaController {
     }
     @GetMapping
     public ResponseEntity listaCategoria(){
-        List<Categoria> categorias = repository.findAll();
+        var categorias = repository.findAll().stream().map(DadosDetalheCategoria::new).toList();
         return ResponseEntity.ok(categorias);
     }
     @DeleteMapping("/{id}")
