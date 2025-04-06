@@ -7,6 +7,7 @@ import br.com.projetocalcado.infra.exception.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -53,5 +54,13 @@ public class ProdutoService {
 
         return new DadosDetalheDoproduto(produto);
 
+    }
+
+    public void atualizaPrecoProduto(Long id, BigDecimal custoProd, BigDecimal precoVenda) {
+
+        var produto = produtoRepository.getReferenceById(id);
+        produto.setCustoProd(custoProd);
+        produto.setPrecoVenda(precoVenda);
+        produtoRepository.save(produto);
     }
 }

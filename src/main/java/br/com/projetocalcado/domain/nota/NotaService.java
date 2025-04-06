@@ -18,6 +18,7 @@ import br.com.projetocalcado.domain.pagamentos.DadosPagamentoEfetuadoNota;
 import br.com.projetocalcado.domain.pagamentos.DadosRetornoPagamentoNota;
 import br.com.projetocalcado.domain.produto.Produto;
 import br.com.projetocalcado.domain.produto.ProdutoRepository;
+import br.com.projetocalcado.domain.produto.ProdutoService;
 import br.com.projetocalcado.domain.xmlnota.*;
 import br.com.projetocalcado.infra.exception.ValidacaoException;
 import br.com.projetocalcado.utilConfig.XstreamConfig;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -63,6 +65,8 @@ public class NotaService {
     TabelaLancamentoRepository tabelaLancamentoRepository;
     @Autowired
     DetPagRepository detPagRepository;
+    @Autowired
+    ProdutoService produtoService;
 
     @Getter
     private BigDecimal totalPago = BigDecimal.ZERO;
@@ -141,12 +145,6 @@ public class NotaService {
             notaFiscalRepository.save(nota);
             return new DadosDetalheNotaFiscal(nota);
     }
-    public DadosResposeCabecalhoNota trataCabecalhoNota(DadosCabecalhoNota dadosCabecalhoNota) {
-        fornecedor = fornecedorRepository.getReferenceById(dadosCabecalhoNota.idFornecedor());
-        dataEmissao = dadosCabecalhoNota.data();
-        numeroNota = dadosCabecalhoNota.numeroNota();
-        return new DadosResposeCabecalhoNota(fornecedor, dadosCabecalhoNota.data(), dadosCabecalhoNota.numeroNota());
-    }
     public DadosNota adicionaProdutoNota(String ean, Integer quantidade) {
 
         var produto = produtoRepository.findByCodEan(ean);
@@ -168,26 +166,63 @@ public class NotaService {
         return new DadosNota(produtos, totalPedido);
     }
     public void alteraQuantidadeItens(Long id, String acao) {
+        Iterator<ItemDaCompra> iterator = produtos.iterator();
+        BigDecimal novoTotal = BigDecimal.ZERO;
 
-        for (ItemDaCompra itemDaCompra : produtos) {
-            if (itemDaCompra.getProduto().getId() == id && acao.equals("+")) {
-                itemDaCompra.setQuantidade(itemDaCompra.getQuantidade() + 1);
-            } else if (itemDaCompra.getProduto().getId() == id && acao.equals("-")) {
-                itemDaCompra.setQuantidade(itemDaCompra.getQuantidade() - 1);
-                if (itemDaCompra.getQuantidade() <= 0) {
-                    produtos.remove(itemDaCompra);
+        while (iterator.hasNext()) {
+            ItemDaCompra itemDaCompra = iterator.next();
+
+            if (itemDaCompra.getProduto().getId().equals(id)) {
+                if (acao.equals("+")) {
+                    itemDaCompra.setQuantidade(itemDaCompra.getQuantidade() + 1);
+                } else if (acao.equals("-")) {
+                    itemDaCompra.setQuantidade(itemDaCompra.getQuantidade() - 1);
+                    if (itemDaCompra.getQuantidade() <= 0) {
+                        iterator.remove();
+                        continue;
+                    }
                 }
+                itemDaCompra.setSubTotalProdCompra(itemDaCompra.getProduto().getCustoProd().multiply(new BigDecimal(itemDaCompra.getQuantidade())));
             }
+            novoTotal = novoTotal.add(itemDaCompra.getSubTotalProdCompra());
         }
+        this.totalPedido = novoTotal;
+    }
+    public void alterarPrecoItens(Long id, BigDecimal precoCusto, BigDecimal precoVenda) {
+        Iterator<ItemDaCompra> iterator = produtos.iterator();
+        BigDecimal novoTotal = BigDecimal.ZERO;
+
+        while (iterator.hasNext()) {
+            ItemDaCompra itemDaCompra = iterator.next();
+
+            if (itemDaCompra.getProduto().getId().equals(id)) {
+                itemDaCompra.getProduto().setCustoProd(precoCusto);
+                itemDaCompra.getProduto().setPrecoVenda(precoVenda);
+                produtoService.atualizaPrecoProduto(itemDaCompra.getProduto().getId(), itemDaCompra.getProduto().getCustoProd(), itemDaCompra.getProduto().getPrecoVenda());
+                itemDaCompra.setSubTotalProdCompra(itemDaCompra.getProduto().getCustoProd().multiply(new BigDecimal(itemDaCompra.getQuantidade())));
+            }
+            novoTotal = novoTotal.add(itemDaCompra.getSubTotalProdCompra());
+        }
+        this.totalPedido = novoTotal;
+    }
+    public DadosNota retornaItensComQdeAlterada() {
+        return new DadosNota(produtos, totalPedido);
     }
     public void removeProduto(Long id) {
+        Iterator<ItemDaCompra> iterator = produtos.iterator();
+        BigDecimal novoTotal = BigDecimal.ZERO;
 
-        for (ItemDaCompra itemDaCompra : produtos) {
-            if (itemDaCompra.getProduto().getId() == id) {
-                produtos.remove(itemDaCompra);
+        while (iterator.hasNext()) {
+            ItemDaCompra itemDaCompra = iterator.next();
+            if (itemDaCompra.getProduto().getId().equals(id)) {
+                iterator.remove();
+            } else {
+                novoTotal = novoTotal.add(itemDaCompra.getSubTotalProdCompra());
             }
         }
+        this.totalPedido = novoTotal;
     }
+
     public void adicionaPagamento(DadosDuplicata dadosDuplicata) {
         numeroDeParcela++;
         duplicata = new Duplicata( numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), nota );
@@ -206,7 +241,10 @@ public class NotaService {
     public DadosRetornoPagamentoNota retornaValorPago() {
         return new DadosRetornoPagamentoNota(pagamentosEfetuadosNotas, totalPago);
     }
-    public DadosResponseNota finalizaNota() {
+    public DadosResponseNota finalizaNota( DadosCabecalhoNota dadosCabecalhoNota) {
+         fornecedor = fornecedorRepository.getReferenceById(dadosCabecalhoNota.idFornecedor());
+         dataEmissao = dadosCabecalhoNota.data();
+         numeroNota = dadosCabecalhoNota.numeroNota();
          nota = new NotaFiscal(numeroNota, dataEmissao, fornecedor);
         if (nota != null && !produtos.isEmpty() && !duplicatas.isEmpty() && fornecedor != null) {
             if (totalPago.compareTo(totalPedido) == -1) {

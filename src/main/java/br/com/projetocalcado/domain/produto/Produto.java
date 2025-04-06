@@ -30,10 +30,11 @@ public class Produto {
         private BigDecimal custoProd;
         private BigDecimal precoVenda;
         private LocalDateTime data = LocalDateTime.now();
-
+        @JsonIgnore
         @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = "categoria_id")
         private Categoria categoria;
+        @JsonIgnore
         @JoinColumn(name = "estoque_id")
         @ManyToOne
         private Estoque estoque;
