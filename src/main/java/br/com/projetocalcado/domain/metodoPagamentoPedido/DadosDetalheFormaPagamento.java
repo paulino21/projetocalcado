@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.metodoPagamento;
+package br.com.projetocalcado.domain.metodoPagamentoPedido;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +7,7 @@ public record DadosDetalheFormaPagamento(
         @NotNull
         Long id,
         @NotBlank
-        TipoPagamento tpoPagamento,
+        TipoPagamento tipoPagamento,
         @NotBlank
         String descricao) {
 

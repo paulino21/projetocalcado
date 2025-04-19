@@ -6,7 +6,8 @@ import java.time.LocalDate;
 public record DadosPagamentoEfetuadoNota(
         Integer numParcela,
         LocalDate dataVenc,
-        BigDecimal valorDup
+        BigDecimal valorDup,
+        String descricaoPagamento
 
 ) {
 }

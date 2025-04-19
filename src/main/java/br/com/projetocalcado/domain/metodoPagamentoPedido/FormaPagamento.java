@@ -1,4 +1,4 @@
-package br.com.projetocalcado.domain.metodoPagamento;
+package br.com.projetocalcado.domain.metodoPagamentoPedido;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

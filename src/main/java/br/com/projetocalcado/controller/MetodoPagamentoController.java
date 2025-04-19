@@ -1,9 +1,11 @@
 package br.com.projetocalcado.controller;
 
-import br.com.projetocalcado.domain.metodoPagamento.DadosDetalheFormaPagamento;
-import br.com.projetocalcado.domain.metodoPagamento.DadosFormaPgto;
-import br.com.projetocalcado.domain.metodoPagamento.FormaPagamento;
-import br.com.projetocalcado.domain.metodoPagamento.FormaPagamentoRepository;
+import br.com.projetocalcado.domain.metodoPagamentoPadraoNota.DadosDetalheFormaPgtoPadraoNota;
+import br.com.projetocalcado.domain.metodoPagamentoPadraoNota.FormaPgtoPadraoNotaRepository;
+import br.com.projetocalcado.domain.metodoPagamentoPedido.DadosDetalheFormaPagamento;
+import br.com.projetocalcado.domain.metodoPagamentoPedido.DadosFormaPgto;
+import br.com.projetocalcado.domain.metodoPagamentoPedido.FormaPagamento;
+import br.com.projetocalcado.domain.metodoPagamentoPedido.FormaPagamentoRepository;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
 @SecurityRequirement(name = "bearer-key")
 @RestController
-@RequestMapping("/formaPagamentos")
+@RequestMapping("/formasPagamentos")
 public class MetodoPagamentoController {
 
     @Autowired
     FormaPagamentoRepository formaPagamentoRepository;
+    @Autowired
+    FormaPgtoPadraoNotaRepository formaPgtoPadraoNotaRepository;
 
     @PostMapping
     @Transactional
@@ -39,10 +41,9 @@ public class MetodoPagamentoController {
     }
 
     @GetMapping
-    public ResponseEntity metodoPagamento() {
-        List<FormaPagamento> formasPagamentos = formaPagamentoRepository.findAll();
+    public ResponseEntity metodosPagamentos() {
+        var formasPagamentos = formaPagamentoRepository.findAll().stream().map(DadosDetalheFormaPagamento::new);
         return ResponseEntity.ok(formasPagamentos);
-
     }
 
     @DeleteMapping("/{id}")
@@ -52,7 +53,11 @@ public class MetodoPagamentoController {
        formaPagamentoRepository.delete(formaPagto);
        return ResponseEntity.noContent().build();
     }
-
+    @GetMapping("/padraoNota")
+    public ResponseEntity metodosPagamentosPadraoNota() {
+        var formasPagamentosPadraoNota = formaPgtoPadraoNotaRepository.findAll().stream().map(DadosDetalheFormaPgtoPadraoNota::new);
+        return ResponseEntity.ok(formasPagamentosPadraoNota);
+    }
     @GetMapping("/{id}")
     public ResponseEntity detalheFormaPagamento(@PathVariable Long id) {
        var formaPagto = formaPagamentoRepository.getReferenceById(id);

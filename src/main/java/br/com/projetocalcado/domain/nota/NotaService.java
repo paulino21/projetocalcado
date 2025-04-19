@@ -11,7 +11,8 @@ import br.com.projetocalcado.domain.financeiro.TipoLancamento;
 import br.com.projetocalcado.domain.financeiro.tipoLancamento.TabelaLancamentoRepository;
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
-import br.com.projetocalcado.domain.metodoPagamento.FormaPagamentoRepository;
+import br.com.projetocalcado.domain.metodoPagamentoPadraoNota.FormaPgtoPadraoNotaRepository;
+import br.com.projetocalcado.domain.metodoPagamentoPedido.FormaPagamentoRepository;
 import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
 import br.com.projetocalcado.domain.movimentacaoEstoque.TipoMovimentacao;
 import br.com.projetocalcado.domain.pagamentos.DadosPagamentoEfetuadoNota;
@@ -55,6 +56,8 @@ public class NotaService {
     FornecedorRepository fornecedorRepository;
     @Autowired
     FormaPagamentoRepository formaPagamentoRepository;
+    @Autowired
+    FormaPgtoPadraoNotaRepository formaPgtoPadraoNotaRepository;
     @Autowired
     DetPagRepository repository;
     @Autowired
@@ -228,16 +231,44 @@ public class NotaService {
         duplicata = new Duplicata( numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), nota );
         duplicatas.add(duplicata);
         var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
-        var formaPgamanto = formaPagamentoRepository.getReferenceById(dadosDuplicata.idFormaPagto());
-        var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPgamanto.getDescricao(), dadosDuplicata.valorDup(), dadosDuplicata.dataVenc(), false, null);
+        var formaPgtoPadraoNota = formaPgtoPadraoNotaRepository.getReferenceById(dadosDuplicata.idFormaPagto());
+        var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPgtoPadraoNota.getDescricaoPagamento(), dadosDuplicata.valorDup(), dadosDuplicata.dataVenc(), false, null);
         lancamentos.add(lancamento);
         this.totalPago = totalPago.add(dadosDuplicata.valorDup());
-        criaDtoRetornoPgto(numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup());
+        criaDtoRetornoPgto(numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), formaPgtoPadraoNota.getDescricaoPagamento());
     }
-    public void criaDtoRetornoPgto(Integer numParcela, LocalDate dataVenc, BigDecimal valorDup) {
-        var pgtoEfetuadoNota = new DadosPagamentoEfetuadoNota(numParcela, dataVenc, valorDup);
+    public void criaDtoRetornoPgto(Integer numParcela, LocalDate dataVenc, BigDecimal valorDup, String descricaoPgto ) {
+        var pgtoEfetuadoNota = new DadosPagamentoEfetuadoNota(numParcela, dataVenc, valorDup, descricaoPgto);
         pagamentosEfetuadosNotas.add(pgtoEfetuadoNota);
     }
+    public void removerPagamento(int numParcela) {
+        Iterator<Duplicata> iteratorDup = duplicatas.iterator();
+        while (iteratorDup.hasNext()) {
+            Duplicata dup = iteratorDup.next();
+            if (dup.getNumParcelaDup() == numParcela) {
+                iteratorDup.remove();
+                break;
+            }
+        }
+        Iterator<DadosPagamentoEfetuadoNota> iteratorPgto = pagamentosEfetuadosNotas.iterator();
+        while (iteratorPgto.hasNext()) {
+            DadosPagamentoEfetuadoNota pagamento = iteratorPgto.next();
+            if (pagamento.numParcela() == numParcela) {
+                iteratorPgto.remove();
+                numeroDeParcela--;
+                break;
+            }
+        }
+
+        BigDecimal novoTotal = BigDecimal.ZERO;
+        for (Duplicata dup : duplicatas) {
+            novoTotal = novoTotal.add(dup.getValorDup());
+        }
+        this.totalPago = novoTotal;
+    }
+
+
+
     public DadosRetornoPagamentoNota retornaValorPago() {
         return new DadosRetornoPagamentoNota(pagamentosEfetuadosNotas, totalPago);
     }
@@ -246,6 +277,9 @@ public class NotaService {
          dataEmissao = dadosCabecalhoNota.data();
          numeroNota = dadosCabecalhoNota.numeroNota();
          nota = new NotaFiscal(numeroNota, dataEmissao, fornecedor);
+        if (totalPago.compareTo(totalPedido) == -1) {
+            throw new ValidacaoException("O valor do pagamento é menor que o valor do total da nota ");
+        }
         if (nota != null && !produtos.isEmpty() && !duplicatas.isEmpty() && fornecedor != null) {
             if (totalPago.compareTo(totalPedido) == -1) {
                 throw new ValidacaoException("O valor do pagamento é menor que o valor total da nota");

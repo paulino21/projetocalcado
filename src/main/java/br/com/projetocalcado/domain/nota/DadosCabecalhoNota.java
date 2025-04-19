@@ -7,12 +7,12 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record DadosCabecalhoNota(
-        @NotNull
+        @NotNull(message = "O fornecedor é obrigatorio")
         Long idFornecedor,
-        @NotNull
+        @NotNull(message = "data é obrigatorio")
         @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
         LocalDateTime data,
-        @NotNull
+        @NotNull(message = "o nemeto da tona nao pode ser nulo")
         @Min(1)
         Long numeroNota ) {
 }

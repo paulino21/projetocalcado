@@ -49,9 +49,18 @@ public class NotaController {
         notaService.removeProduto(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/pagamento")
+    @PostMapping("/pagamento")
     public ResponseEntity adicionaPagamento(@RequestBody @Valid DadosDuplicata dadosDuplicata ){
         notaService.adicionaPagamento(dadosDuplicata);
+        return ResponseEntity.ok(notaService.retornaValorPago());
+    }
+    @GetMapping("/pegaPagamentosAoRegarregar")
+    public ResponseEntity getPagamentosEfetuados() {
+        return ResponseEntity.ok(notaService.retornaValorPago());
+    }
+    @PatchMapping("/removeParcela/{numParcela}")
+    public ResponseEntity removerPagamentoDaNota( @PathVariable int numParcela) {
+        notaService.removerPagamento(numParcela);
         return ResponseEntity.ok(notaService.retornaValorPago());
     }
     @PostMapping("/finalizar")
