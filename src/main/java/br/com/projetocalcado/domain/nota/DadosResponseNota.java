@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record DadosResponseNota(
         @NotNull
@@ -12,7 +12,7 @@ public record DadosResponseNota(
         @NotNull
         BigDecimal valorTotal,
         @JsonFormat(pattern =" dd/MM/yyyy")
-        LocalDateTime dataEmissao) {
+        LocalDate dataEmissao) {
             public DadosResponseNota(NotaFiscal notaFiscal) {
             this(notaFiscal.getId(), notaFiscal.getValorTotal(), notaFiscal.getDataEmissao());
         }

@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -77,7 +76,7 @@ public class NotaService {
     public List<Lancamento> lancamentos = new ArrayList<>();
     public List<ItemDaCompra> produtos = new ArrayList<>();
     private BigDecimal totalPedido = BigDecimal.ZERO;
-    private LocalDateTime dataEmissao;
+    private LocalDate dataEmissao;
     private Long numeroNota;
     private NotaFiscal nota;
     public List<DadosPagamentoEfetuadoNota> pagamentosEfetuadosNotas = new ArrayList<>();
@@ -107,11 +106,11 @@ public class NotaService {
         }
         var nota = new NotaFiscal(infXml.getIdentifNota().getNumeroNF(), infXml.getIdentifNota().getDataEmiss(), fornecedor);
             var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
-            var formaPagamento = detPagRepository.findBynumPagtoTpag(infXml.getPag().getDetPag().getNumPagtoTpag());
+            var formaPagamentoPadraNota = formaPgtoPadraoNotaRepository.getReferenceById(infXml.getPag().getDetPag().getNumPagtoTpag());
         for(Duplicata dup: infXml.getCobranca().getDuplicatas() ){
               duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
               nota.adicionaPagamento(duplicata);
-              var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPagamento.getNome(), dup.getValorDup(), dup.getDataVenc(), false, null);
+              var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPagamentoPadraNota.getDescricaoPagamento(), dup.getValorDup(), dup.getDataVenc(), false, null);
             lancamentos.add(lancamento);
         }
            for(DetItens detItens : infXml.getDetList()){
@@ -146,6 +145,7 @@ public class NotaService {
                 lancamentoRepository.save(lancamento);
             }
             notaFiscalRepository.save(nota);
+            resetaDadosNota();
             return new DadosDetalheNotaFiscal(nota);
     }
     public DadosNota adicionaProdutoNota(String ean, Integer quantidade) {

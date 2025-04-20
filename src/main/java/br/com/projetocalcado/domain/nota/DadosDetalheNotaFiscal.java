@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public record DadosDetalheNotaFiscal(
@@ -18,9 +17,9 @@ public record DadosDetalheNotaFiscal(
         Long id,
         @NotNull
         Long numeroNF,
-        @JsonFormat(pattern = "dd/MM/yyyy HH:mm")
+        @JsonFormat(pattern = "dd/MM/yyyy")
         @NotNull
-        LocalDateTime dataEmissao,
+        LocalDate dataEmissao,
         @Digits(integer = 10 , fraction = 2)
         @NotNull
         BigDecimal valorTotal,
