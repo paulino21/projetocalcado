@@ -96,7 +96,7 @@ public class NotaService {
         return infXml;
     }
 
-        public DadosDetalheNotaFiscal salvaNotaXml(InfNFe infXml) {
+        public DadosRetornoNotaFiscal salvaNotaXml(InfNFe infXml) {
 
         if (!fornecedorRepository.existsByCnpj(infXml.getFornecedor().getCnpj())) {
             fornecedor = fornecedorRepository.save(infXml.getFornecedor());
@@ -146,7 +146,7 @@ public class NotaService {
             }
             notaFiscalRepository.save(nota);
             resetaDadosNota();
-            return new DadosDetalheNotaFiscal(nota);
+            return new DadosRetornoNotaFiscal(nota);
     }
     public DadosNota adicionaProdutoNota(String ean, Integer quantidade) {
 
@@ -272,7 +272,7 @@ public class NotaService {
     public DadosRetornoPagamentoNota retornaValorPago() {
         return new DadosRetornoPagamentoNota(pagamentosEfetuadosNotas, totalPago);
     }
-    public DadosResponseNota finalizaNota( DadosCabecalhoNota dadosCabecalhoNota) {
+    public DadosRetornoNotaFiscal finalizaNota( DadosCabecalhoNota dadosCabecalhoNota) {
          fornecedor = fornecedorRepository.getReferenceById(dadosCabecalhoNota.idFornecedor());
          dataEmissao = dadosCabecalhoNota.data();
          numeroNota = dadosCabecalhoNota.numeroNota();
@@ -303,7 +303,7 @@ public class NotaService {
         } else {
             throw new ValidacaoException("Você precisa adicionar o fornecedor, produto e pagamento antes de finalizar o pedido");
         }
-        return new DadosResponseNota(nota);
+        return new DadosRetornoNotaFiscal(nota);
     }
     public void resetaDadosNota(){
         duplicatas.clear();

@@ -1,7 +1,5 @@
 package br.com.projetocalcado.domain.nota;
 
-import br.com.projetocalcado.domain.fornecedor.Fornecedor;
-import br.com.projetocalcado.domain.xmlnota.Duplicata;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Digits;
@@ -10,9 +8,8 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
-public record DadosDetalheNotaFiscal(
+public record DadosRetornoNotaFiscal(
         @NotNull
         Long id,
         @NotNull
@@ -28,18 +25,13 @@ public record DadosDetalheNotaFiscal(
         @NotNull
         LocalDate dataLancamento,
         @NotBlank
-        Fornecedor fornecedor,
-        @JsonIgnore
-        @NotNull
-        List<ItensNota> itens,
-        @JsonIgnore
-        @NotNull
-        List<Duplicata> duplicatas ) {
+        String nomeFornecedor
+) {
 
-    public DadosDetalheNotaFiscal(NotaFiscal nota) {
+    public DadosRetornoNotaFiscal(NotaFiscal nota) {
 
         this(nota.getId(), nota.getNumeroNF(), nota.getDataEmissao(), nota.getValorTotal(), nota.getDataLancamento(),
-                nota.getFornecedor(), nota.getItens(), nota.getDuplicatas());
+                nota.getFornecedor().getRazaoSocial());
 
     }
 
