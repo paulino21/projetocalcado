@@ -109,7 +109,7 @@ public class NotaService {
         }
         var nota = new NotaFiscal(infXml.getIdentifNota().getNumeroNF(), infXml.getIdentifNota().getDataEmiss(), fornecedor);
             var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
-            var formaPagamentoPadraNota = formaPgtoPadraoNotaRepository.getReferenceById(infXml.getPag().getDetPag().getNumPagtoTpag());
+            var formaPagamentoPadraNota = formaPgtoPadraoNotaRepository.findByCodigo(infXml.getPag().getDetPag().getNumPagtoTpag());
         for(Duplicata dup: infXml.getCobranca().getDuplicatas() ){
               duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
               nota.adicionaPagamento(duplicata);
