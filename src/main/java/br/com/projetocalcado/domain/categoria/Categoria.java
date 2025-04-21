@@ -26,6 +26,12 @@ public class Categoria {
     public Categoria(DadosCategoria dadosCategoria) {
         this.nome = dadosCategoria.nome();
     }
+
+    public Categoria(Long id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
     public void atualizaCategoria(DadosDetalheCategoria dadosCategoria) {
         this.nome = dadosCategoria.nome();
     }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -30,9 +31,8 @@ public class ItensNota {
         this.quantidade = quantidade;
         this.notaFiscal = notaFiscal;
         this.produto = produto;
-        this.precoCusto = produto.getCustoProd();
+        this.precoCusto = produto.getCustoProd().setScale(2);
         this.subTotalProd = getValor();
-
     }
     public BigDecimal getValor()
     {

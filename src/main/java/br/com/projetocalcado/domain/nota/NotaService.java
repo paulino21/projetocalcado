@@ -3,6 +3,7 @@ package br.com.projetocalcado.domain.nota;
 import br.com.projetocalcado.converter.ConverterData;
 import br.com.projetocalcado.converter.ConverterInt;
 import br.com.projetocalcado.domain.Pedido.ItemDaCompra;
+import br.com.projetocalcado.domain.categoria.Categoria;
 import br.com.projetocalcado.domain.estoque.Estoque;
 import br.com.projetocalcado.domain.estoque.EstoqueRepository;
 import br.com.projetocalcado.domain.financeiro.Lancamento;
@@ -30,7 +31,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -117,11 +120,10 @@ public class NotaService {
 
                for (ProdDetalheNota prodD : detItens.getProdutos()){
 
+                   produto = new Produto( prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit(), prodD.getValorUnit().multiply(new BigDecimal("2.20").setScale(2, RoundingMode.HALF_UP)), LocalDateTime.now(), new Categoria(1L, "SEM CATEGORIA"), estoque);
                    estoque = new Estoque(prodD.getQuantidade());
-                   produto = new Produto( prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit(), estoque);
 
                    if(!produtoRepository.existsByCodEan(prodD.getCodEan())){
-
                        estoqueRepository.save(estoque);
                        estoque.adicionarProduto(produto);
                        produtoRepository.save(produto);
@@ -130,11 +132,12 @@ public class NotaService {
                        movimentacaoEstoqueService.registraEntradaMovimentacao(produto , TipoMovimentacao.ENTRADA, prodD.getQuantidade());
                    }
                    else {
-                       produto = produtoRepository.findByCodEan(produto.getCodEan());
+                       produto = produtoRepository.findByCodEan(prodD.getCodEan());
                        int novaQuantidade = produto.getEstoque().getQuantidade() + prodD.getQuantidade();
                        var estoque = estoqueRepository.getReferenceById(produto.getEstoque().getId());
                        estoque.setQuantidade(novaQuantidade);
                        produto.setEstoque(estoque);
+                       produto.setCustoProd(prodD.getValorUnit());
                        itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
                        nota.adiconarItem(itensNota);
                        movimentacaoEstoqueService.registraEntradaMovimentacao(produto ,TipoMovimentacao.ENTRADA, prodD.getQuantidade());
