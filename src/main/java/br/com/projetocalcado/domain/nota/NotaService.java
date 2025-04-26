@@ -13,7 +13,6 @@ import br.com.projetocalcado.domain.financeiro.tipoLancamento.TabelaLancamentoRe
 import br.com.projetocalcado.domain.fornecedor.Fornecedor;
 import br.com.projetocalcado.domain.fornecedor.FornecedorRepository;
 import br.com.projetocalcado.domain.metodoPagamentoPadraoNota.FormaPgtoPadraoNotaRepository;
-import br.com.projetocalcado.domain.metodoPagamentoPedido.FormaPagamentoRepository;
 import br.com.projetocalcado.domain.movimentacaoEstoque.MovimentacaoEstoqueService;
 import br.com.projetocalcado.domain.movimentacaoEstoque.TipoMovimentacao;
 import br.com.projetocalcado.domain.pagamentos.DadosPagamentoEfetuadoNota;
@@ -28,6 +27,7 @@ import com.thoughtworks.xstream.security.AnyTypePermission;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -57,11 +57,7 @@ public class NotaService {
     @Autowired
     FornecedorRepository fornecedorRepository;
     @Autowired
-    FormaPagamentoRepository formaPagamentoRepository;
-    @Autowired
     FormaPgtoPadraoNotaRepository formaPgtoPadraoNotaRepository;
-    @Autowired
-    DetPagRepository repository;
     @Autowired
     private XstreamConfig xStream;
     @Autowired
@@ -69,10 +65,7 @@ public class NotaService {
     @Autowired
     TabelaLancamentoRepository tabelaLancamentoRepository;
     @Autowired
-    DetPagRepository detPagRepository;
-    @Autowired
     ProdutoService produtoService;
-
     @Getter
     private BigDecimal totalPago = BigDecimal.ZERO;
     public List<Duplicata> duplicatas = new ArrayList<>();
@@ -84,73 +77,90 @@ public class NotaService {
     private NotaFiscal nota;
     public List<DadosPagamentoEfetuadoNota> pagamentosEfetuadosNotas = new ArrayList<>();
 
-    public InfNFe devolveDadosXml(String caminho) {
+    public InfNFe devolveDadosXml(MultipartFile arquivo) {
 
-        File file = new File("c:\\arq\\" + caminho);
-        xStream.xStream().registerConverter(new ConverterData());
-        xStream.xStream().registerConverter(new ConverterInt());
-        xStream.xStream().ignoreUnknownElements();
-        xStream.xStream().autodetectAnnotations(true);
-        xStream.xStream().addPermission(AnyTypePermission.ANY);
-        xStream.xStream().processAnnotations(NfeProc.class);
-        NfeProc nfeProc = (NfeProc) xStream.xStream().fromXML(file);
-        var infXml = nfeProc.getNfe().getInfNFe();
+        try {
+            File tempFile = File.createTempFile("xml_nfe", "xml");
+            arquivo.transferTo(tempFile);
 
-        return infXml;
+            xStream.xStream().registerConverter(new ConverterData());
+            xStream.xStream().registerConverter(new ConverterInt());
+            xStream.xStream().ignoreUnknownElements();
+            xStream.xStream().autodetectAnnotations(true);
+            xStream.xStream().addPermission(AnyTypePermission.ANY);
+            xStream.xStream().processAnnotations(NfeProc.class);
+            NfeProc nfeProc = (NfeProc) xStream.xStream().fromXML(tempFile);
+            var infXml = nfeProc.getNfe().getInfNFe();
+
+            if (nfeProc == null || nfeProc.getNfe() == null || nfeProc.getNfe().getInfNFe() == null) {
+                throw new ValidacaoException("Erro ao ler o conteúdo do XML. Estrutura inválida.");
+            }
+
+            tempFile.delete();
+
+            return infXml;
+
+        } catch (Exception e) {
+            throw new ValidacaoException("Falha ao processar o arquivo XML: " + e.getMessage());
+        }
+
     }
 
-        public DadosRetornoNotaFiscal salvaNotaXml(InfNFe infXml) {
+    public DadosRetornoNotaFiscal salvaNotaXml(InfNFe infXml) {
+        try {
 
-        if (!fornecedorRepository.existsByCnpj(infXml.getFornecedor().getCnpj())) {
-            fornecedor = fornecedorRepository.save(infXml.getFornecedor());
-        }
-        else{
-            fornecedor = fornecedorRepository.findByCnpj(infXml.getFornecedor().getCnpj());
-        }
-        var nota = new NotaFiscal(infXml.getIdentifNota().getNumeroNF(), infXml.getIdentifNota().getDataEmiss(), fornecedor);
+            if (!fornecedorRepository.existsByCnpj(infXml.getFornecedor().getCnpj())) {
+                fornecedor = fornecedorRepository.save(infXml.getFornecedor());
+            } else {
+                fornecedor = fornecedorRepository.findByCnpj(infXml.getFornecedor().getCnpj());
+            }
+            var nota = new NotaFiscal(infXml.getIdentifNota().getNumeroNF(), infXml.getIdentifNota().getDataEmiss(), fornecedor);
             var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
             var formaPagamentoPadraNota = formaPgtoPadraoNotaRepository.findByCodigo(infXml.getPag().getDetPag().getNumPagtoTpag());
-        for(Duplicata dup: infXml.getCobranca().getDuplicatas() ){
-              duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
-              nota.adicionaPagamento(duplicata);
-              var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPagamentoPadraNota.getDescricaoPagamento(), dup.getValorDup(), dup.getDataVenc(), false, null);
-            lancamentos.add(lancamento);
-        }
-           for(DetItens detItens : infXml.getDetList()){
+            for (Duplicata dup : infXml.getCobranca().getDuplicatas()) {
+                duplicata = new Duplicata(dup.getNumParcelaDup(), dup.getDataVenc(), dup.getValorDup(), nota);
+                nota.adicionaPagamento(duplicata);
+                var lancamento = new Lancamento(TipoLancamento.DESPESA, tabelaLancamento, tabelaLancamento.getNome(), formaPagamentoPadraNota.getDescricaoPagamento(), dup.getValorDup(), dup.getDataVenc(), false, null);
+                lancamentos.add(lancamento);
+            }
+            for (DetItens detItens : infXml.getDetList()) {
 
-               for (ProdDetalheNota prodD : detItens.getProdutos()){
+                for (ProdDetalheNota prodD : detItens.getProdutos()) {
+                    var categoria =
+                    produto = new Produto(prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit(), prodD.getValorUnit().multiply(new BigDecimal("2.20").setScale(2, RoundingMode.HALF_UP)), LocalDateTime.now(), new Categoria(1L, "SEM CATEGORIA"), estoque);
+                    estoque = new Estoque(prodD.getQuantidade());
 
-                   produto = new Produto( prodD.getCodProd(), prodD.getCodEan(), prodD.getNomeProd(), prodD.getValorUnit(), prodD.getValorUnit().multiply(new BigDecimal("2.20").setScale(2, RoundingMode.HALF_UP)), LocalDateTime.now(), new Categoria(1L, "SEM CATEGORIA"), estoque);
-                   estoque = new Estoque(prodD.getQuantidade());
-
-                   if(!produtoRepository.existsByCodEan(prodD.getCodEan())){
-                       estoqueRepository.save(estoque);
-                       estoque.adicionarProduto(produto);
-                       produtoRepository.save(produto);
-                       itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
-                       nota.adiconarItem(itensNota);
-                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto , TipoMovimentacao.ENTRADA, prodD.getQuantidade());
-                   }
-                   else {
-                       produto = produtoRepository.findByCodEan(prodD.getCodEan());
-                       int novaQuantidade = produto.getEstoque().getQuantidade() + prodD.getQuantidade();
-                       var estoque = estoqueRepository.getReferenceById(produto.getEstoque().getId());
-                       estoque.setQuantidade(novaQuantidade);
-                       produto.setEstoque(estoque);
-                       produto.setCustoProd(prodD.getValorUnit());
-                       itensNota = new ItensNota(prodD.getQuantidade(),nota, produto);
-                       nota.adiconarItem(itensNota);
-                       movimentacaoEstoqueService.registraEntradaMovimentacao(produto ,TipoMovimentacao.ENTRADA, prodD.getQuantidade());
-                   }
-               }
-           }
-            for(Lancamento lancamento : lancamentos){
+                    if (!produtoRepository.existsByCodEan(prodD.getCodEan())) {
+                        estoqueRepository.save(estoque);
+                        estoque.adicionarProduto(produto);
+                        produtoRepository.save(produto);
+                        itensNota = new ItensNota(prodD.getQuantidade(), nota, produto);
+                        nota.adiconarItem(itensNota);
+                        movimentacaoEstoqueService.registraEntradaMovimentacao(produto, TipoMovimentacao.ENTRADA, prodD.getQuantidade());
+                    } else {
+                        produto = produtoRepository.findByCodEan(prodD.getCodEan());
+                        int novaQuantidade = produto.getEstoque().getQuantidade() + prodD.getQuantidade();
+                        var estoque = estoqueRepository.getReferenceById(produto.getEstoque().getId());
+                        estoque.setQuantidade(novaQuantidade);
+                        produto.setEstoque(estoque);
+                        produto.setCustoProd(prodD.getValorUnit());
+                        itensNota = new ItensNota(prodD.getQuantidade(), nota, produto);
+                        nota.adiconarItem(itensNota);
+                        movimentacaoEstoqueService.registraEntradaMovimentacao(produto, TipoMovimentacao.ENTRADA, prodD.getQuantidade());
+                    }
+                }
+            }
+            for (Lancamento lancamento : lancamentos) {
                 lancamentoRepository.save(lancamento);
             }
             notaFiscalRepository.save(nota);
             resetaDadosNota();
             return new DadosRetornoNotaFiscal(nota);
+        } catch (Exception e) {
+            throw new ValidacaoException("Erro ao salvar a nota fiscal. Verifique os dados do XML." + e.getMessage());
+        }
     }
+
     public DadosNota adicionaProdutoNota(String ean, Integer quantidade) {
 
         var produto = produtoRepository.findByCodEan(ean);
@@ -171,6 +181,7 @@ public class NotaService {
         this.totalPedido = this.totalPedido.add(produto.getCustoProd().multiply(new BigDecimal(quantidade)));
         return new DadosNota(produtos, totalPedido);
     }
+
     public void alteraQuantidadeItens(Long id, String acao) {
         Iterator<ItemDaCompra> iterator = produtos.iterator();
         BigDecimal novoTotal = BigDecimal.ZERO;
@@ -194,6 +205,7 @@ public class NotaService {
         }
         this.totalPedido = novoTotal;
     }
+
     public void alterarPrecoItens(Long id, BigDecimal precoCusto, BigDecimal precoVenda) {
         Iterator<ItemDaCompra> iterator = produtos.iterator();
         BigDecimal novoTotal = BigDecimal.ZERO;
@@ -211,9 +223,11 @@ public class NotaService {
         }
         this.totalPedido = novoTotal;
     }
+
     public DadosNota retornaItensComQdeAlterada() {
         return new DadosNota(produtos, totalPedido);
     }
+
     public void removeProduto(Long id) {
         Iterator<ItemDaCompra> iterator = produtos.iterator();
         BigDecimal novoTotal = BigDecimal.ZERO;
@@ -231,7 +245,7 @@ public class NotaService {
 
     public void adicionaPagamento(DadosDuplicata dadosDuplicata) {
         numeroDeParcela++;
-        duplicata = new Duplicata( numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), nota );
+        duplicata = new Duplicata(numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), nota);
         duplicatas.add(duplicata);
         var tabelaLancamento = tabelaLancamentoRepository.getReferenceByNome("FORNECEDOR");
         var formaPgtoPadraoNota = formaPgtoPadraoNotaRepository.getReferenceById(dadosDuplicata.idFormaPagto());
@@ -240,10 +254,12 @@ public class NotaService {
         this.totalPago = totalPago.add(dadosDuplicata.valorDup());
         criaDtoRetornoPgto(numeroDeParcela, dadosDuplicata.dataVenc(), dadosDuplicata.valorDup(), formaPgtoPadraoNota.getDescricaoPagamento());
     }
-    public void criaDtoRetornoPgto(Integer numParcela, LocalDate dataVenc, BigDecimal valorDup, String descricaoPgto ) {
+
+    public void criaDtoRetornoPgto(Integer numParcela, LocalDate dataVenc, BigDecimal valorDup, String descricaoPgto) {
         var pgtoEfetuadoNota = new DadosPagamentoEfetuadoNota(numParcela, dataVenc, valorDup, descricaoPgto);
         pagamentosEfetuadosNotas.add(pgtoEfetuadoNota);
     }
+
     public void removerPagamento(int numParcela) {
         Iterator<Duplicata> iteratorDup = duplicatas.iterator();
         while (iteratorDup.hasNext()) {
@@ -270,22 +286,19 @@ public class NotaService {
         this.totalPago = novoTotal;
     }
 
-
-
     public DadosRetornoPagamentoNota retornaValorPago() {
         return new DadosRetornoPagamentoNota(pagamentosEfetuadosNotas, totalPago);
     }
-    public DadosRetornoNotaFiscal finalizaNota( DadosCabecalhoNota dadosCabecalhoNota) {
-         fornecedor = fornecedorRepository.getReferenceById(dadosCabecalhoNota.idFornecedor());
-         dataEmissao = dadosCabecalhoNota.data();
-         numeroNota = dadosCabecalhoNota.numeroNota();
-         nota = new NotaFiscal(numeroNota, dataEmissao, fornecedor);
-        if (totalPago.compareTo(totalPedido) == -1) {
-            throw new ValidacaoException("O valor do pagamento é menor que o valor do total da nota ");
-        }
+
+    public DadosRetornoNotaFiscal finalizaNota(DadosCabecalhoNota dadosCabecalhoNota) {
+        fornecedor = fornecedorRepository.getReferenceById(dadosCabecalhoNota.idFornecedor());
+        dataEmissao = dadosCabecalhoNota.data();
+        numeroNota = dadosCabecalhoNota.numeroNota();
+        nota = new NotaFiscal(numeroNota, dataEmissao, fornecedor);
+
         if (nota != null && !produtos.isEmpty() && !duplicatas.isEmpty() && fornecedor != null) {
             if (totalPago.compareTo(totalPedido) == -1) {
-                throw new ValidacaoException("O valor do pagamento é menor que o valor total da nota");
+                throw new ValidacaoException("O valor informado para o pagamento é inferior ao valor total da nota.");
             }
             for (ItemDaCompra item : produtos) {
                 int novaQuantidade = item.getProduto().getEstoque().getQuantidade() + item.getQuantidade();
@@ -296,19 +309,20 @@ public class NotaService {
                 movimentacaoEstoqueService.registraEntradaMovimentacao(item.getProduto(), TipoMovimentacao.SAIDA, item.getQuantidade());
             }
             for (Duplicata dupli : duplicatas) {
-                 nota.adicionaPagamento(dupli);
+                nota.adicionaPagamento(dupli);
             }
-            for(Lancamento lancamento : lancamentos){
+            for (Lancamento lancamento : lancamentos) {
                 lancamentoRepository.save(lancamento);
             }
             notaFiscalRepository.save(nota);
             resetaDadosNota();
         } else {
-            throw new ValidacaoException("Você precisa adicionar o fornecedor, produto e pagamento antes de finalizar o pedido");
+            throw new ValidacaoException("Você precisa adicionar o fornecedor, os produtos e as condições de pagamento antes de finalizar a nota.");
         }
         return new DadosRetornoNotaFiscal(nota);
     }
-    public void resetaDadosNota(){
+
+    public void resetaDadosNota() {
         duplicatas.clear();
         produtos.clear();
         pagamentosEfetuadosNotas.clear();

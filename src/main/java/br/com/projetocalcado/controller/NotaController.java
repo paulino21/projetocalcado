@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -19,10 +20,9 @@ public class NotaController {
     @Autowired
     NotaFiscalRepository notaFiscalRepository;
 
-    @GetMapping("/{caminho}")
-    public ResponseEntity pegaXmlNota(@PathVariable String caminho , UriComponentsBuilder uriBuilder){
-            var infXml = notaService.devolveDadosXml(caminho);
-            var nota = notaService.salvaNotaXml(infXml);
+    @PostMapping("/upload")
+    public ResponseEntity uploadXml(@RequestParam("arquivo") MultipartFile arquivo,  UriComponentsBuilder uriBuilder){
+            var nota = notaService.salvaNotaXml(notaService.devolveDadosXml(arquivo));
             var uri = uriBuilder.path("/nota/{id}").buildAndExpand(nota.id()).toUri();
         return ResponseEntity.created(uri).body(nota);
     }

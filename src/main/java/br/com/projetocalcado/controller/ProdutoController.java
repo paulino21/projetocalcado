@@ -9,8 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.HashMap;
+import java.util.Map;
+
 @SecurityRequirement(name = "bearer-key")
 @RestController
 @RequestMapping("/produtos")
@@ -60,5 +66,15 @@ public class ProdutoController {
     public ResponseEntity buscaPorEanProduto(@PathVariable String termoBusca){
        var produtos = repository.findByCodEanStartingWithIgnoreCase(termoBusca).stream().map(DadosDetalheDoproduto::new);;
         return ResponseEntity.ok(produtos);
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+
+        return ResponseEntity.badRequest().body(errors);
     }
 }

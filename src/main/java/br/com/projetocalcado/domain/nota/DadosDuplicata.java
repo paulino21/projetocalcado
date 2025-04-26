@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record DadosDuplicata(
-        @NotNull
+        @NotNull(message = "Selecione a forma de pagamneto.")
         Long idFormaPagto,
-        @NotNull
+        @NotNull(message = "Informe a data de vencimento.")
         @JsonFormat(pattern = "dd/MM/yyyy")
         LocalDate dataVenc,
-        @NotNull
+        @NotNull(message = "Informe o valor do pagamento.")
         BigDecimal valorDup) {
 }
