@@ -22,9 +22,8 @@ public class NotaController {
 
     @PostMapping("/upload")
     public ResponseEntity uploadXml(@RequestParam("arquivo") MultipartFile arquivo,  UriComponentsBuilder uriBuilder){
-            var nota = notaService.salvaNotaXml(notaService.devolveDadosXml(arquivo));
-            var uri = uriBuilder.path("/nota/{id}").buildAndExpand(nota.id()).toUri();
-        return ResponseEntity.created(uri).body(nota);
+            var nota = notaService.carregaNotaXml(notaService.devolveDadosXml(arquivo));
+        return ResponseEntity.ok(nota);
     }
     @GetMapping("/{ean}/{quantidade}")
     public ResponseEntity adicionaProduto(@PathVariable String ean, @PathVariable Integer quantidade) {
@@ -62,6 +61,12 @@ public class NotaController {
     public ResponseEntity removerPagamentoDaNota( @PathVariable int numParcela) {
         notaService.removerPagamento(numParcela);
         return ResponseEntity.ok(notaService.retornaValorPago());
+    }
+
+    @GetMapping("listaNotas")
+    public ResponseEntity listaNotas(){
+        var listaNotas = notaFiscalRepository.findAll().stream().map(DadosRetornoNotaFiscal::new);
+        return ResponseEntity.ok(listaNotas);
     }
     @PostMapping("/finalizar")
     public ResponseEntity CadastraNota(@RequestBody @Valid DadosCabecalhoNota dadosCabecalhoNota) {

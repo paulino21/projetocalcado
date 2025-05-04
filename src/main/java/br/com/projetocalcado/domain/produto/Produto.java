@@ -36,7 +36,7 @@ public class Produto {
         private Categoria categoria;
         @JsonIgnore
         @JoinColumn(name = "estoque_id")
-        @ManyToOne
+        @ManyToOne(cascade = CascadeType.ALL)
         private Estoque estoque;
         @JsonIgnore
         @OneToMany(mappedBy = "produto")

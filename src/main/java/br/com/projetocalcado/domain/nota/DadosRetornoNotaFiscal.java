@@ -1,7 +1,6 @@
 package br.com.projetocalcado.domain.nota;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,18 +19,17 @@ public record DadosRetornoNotaFiscal(
         @Digits(integer = 10 , fraction = 2)
         @NotNull
         BigDecimal valorTotal,
-        @JsonIgnore
         @JsonFormat(pattern =" dd/MM/yyyy")
         @NotNull
         LocalDate dataLancamento,
         @NotBlank
-        String nomeFornecedor
+        Long idFornecedor
 ) {
 
     public DadosRetornoNotaFiscal(NotaFiscal nota) {
 
         this(nota.getId(), nota.getNumeroNF(), nota.getDataEmissao(), nota.getValorTotal(), nota.getDataLancamento(),
-                nota.getFornecedor().getRazaoSocial());
+                nota.getFornecedor().getId());
 
     }
 

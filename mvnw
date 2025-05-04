@@ -250,6 +250,7 @@ fi
 ##########################################################################################
 # End of extension
 ##########################################################################################
+
 # If specified, validate the SHA-256 sum of the Maven wrapper jar file
 wrapperSha256Sum=""
 while IFS="=" read -r key value; do
