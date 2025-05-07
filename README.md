@@ -48,7 +48,7 @@ As seguintes tecnologias foram utilizadas no desenvolvimento da API Rest do proj
 
 ## Desenvolvedor
 
-[<img src="https://avatars.githubusercontent.com/u/57377471?v=4" width=115><br><sub>Alexandre</sub>](https://github.com/paulino21) 
-
+| [<img src="https://avatars.githubusercontent.com/u/57377471?v=4" width=115><br><sub>Alexandre</sub>](https://github.com/paulino21) |
+| :---: |
           
 
