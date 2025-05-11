@@ -34,10 +34,12 @@ Aplicação para lançamento, leitura via XML e gerenciamento de notas fiscais e
 As seguintes tecnologias foram utilizadas no desenvolvimento da API Rest do projeto:
 
 - **[Java](https://www.oracle.com/java)**
-- **[Spring Boot 3](https://spring.io/projects/spring-boot)**
+- **[Spring Boot 3.1.2](https://spring.io/projects/spring-boot)**
 - **[Maven](https://maven.apache.org)**
 - **[MySQL](https://www.mysql.com)**
 - **[Lombok](https://projectlombok.org)**
+- **[Xstream](https://x-stream.github.io/)**
+- **[Java JWT (Auth0)](https://jwt.io/libraries)**
 
 <div style="display: inline_block"><br>
    <img align="center" width="80" height="60" alt="Java" src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-plain-wordmark.svg"/>
